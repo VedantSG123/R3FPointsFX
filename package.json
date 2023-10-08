@@ -2,12 +2,27 @@
   "name": "r3f-points-fx",
   "private": false,
   "version": "0.0.0",
+  "description": "React three fiber component for easily creating fbo particles meshes. Also for making the points to transition from one geometry to other.",
+  "keywords": [
+    "react",
+    "@react-three/fiber",
+    "react-three-fiber particles",
+    "three js points",
+    "three js",
+    "3d",
+    "particles"
+  ],
+  "license": "MIT",
   "type": "module",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VedantSG123/R3FPointsFX"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --p ./tsconfig-build.json && vite build",
