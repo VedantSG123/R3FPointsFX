@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: transparent;
+}
+
+.canvas-container {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  z-index: -100;
+  top: 0;
+  left: 0;
+}
+
+.main-canvas {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+
+.select-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 4rem;
+}
+
+.select-element {
+  padding: 4px;
+  color: aliceblue;
+  border-radius: 4px;
+  border: 2px solid aliceblue;
+  text-align: center;
+  cursor: pointer;
+}
+
+.select-element + .select-element {
+  margin-left: 1rem;
+}
