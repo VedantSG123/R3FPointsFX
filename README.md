@@ -113,7 +113,12 @@ export default App
 
 #### Updating progress:
 
-Always update the progress using `pointsRef`. <span style="color:red;">Do not use state variables for progress</span> as it will cause serious performance issues. The usage of `pointsRef.udateProgress` is demonstrated in the sandbox 😊
+Always update the progress using `pointsRef`.
+
+> [!Warning]
+> Do not use state variables for progress as it will cause serious performance issues.
+
+The usage of `pointsRef.udateProgress` is demonstrated in the sandbox 😊
 
 #### Ref methods
 
@@ -143,8 +148,12 @@ The `R3FPointsFX` component accepts the following props:
 
 ## Customization
 
-You can pass your own uniforms and provided shader functions to give a more customized look to your particles 🤩. Use the provided shader function templates to control the color, size, shape, position of the particles. <span style="color:red;">Do not modify the names or input variables of the function</span>, you are supposed to use the provided inputs to complete the functions as per your needs.
-Finally pass these templates (with whatever changes you have done) as props to the component. If your are not using any function just let it remain same as the template, <span style="color:red;">changing the name or input params</span> of these function will cause shader to crash.
+You can pass your own uniforms and provided shader functions to give a more customized look to your particles 🤩. Use the provided shader function templates to control the color, size, shape, position of the particles.
+
+> [!WARNING]  
+> Do not modify the names or input variables of the function, you are supposed to use the provided inputs to complete the functions as per your needs.
+
+Finally pass these templates (with whatever changes you have done) as props to the component. If your are not using any function just let it remain same as the template, **changing the name or input params** of these function will cause shader to crash.
 
 #### GLSL Function templates:
 
