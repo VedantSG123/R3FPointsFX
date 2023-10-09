@@ -15,7 +15,13 @@ export default defineConfig({
     },
     copyPublicDir: false,
     rollupOptions: {
-      external: ["react", "react/jsx-runtime"],
+      external: [
+        "react",
+        "react/jsx-runtime",
+        "@react-three/fiber",
+        "@react-three/drei",
+        "three",
+      ],
       input: Object.fromEntries(
         glob.sync("lib/**/*.{ts,tsx}").map((file) => [
           // The name of the entry point
