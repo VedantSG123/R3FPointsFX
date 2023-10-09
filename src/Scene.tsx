@@ -4,7 +4,7 @@ import { GLTF } from "three-stdlib"
 import { useControls } from "leva"
 import { bezier } from "@leva-ui/plugin-bezier"
 import { useRef, useState, useEffect } from "react"
-import { R3FPointsFXRefType, R3FPointsFX } from "../dist/main"
+import { R3FPointsFXRefType, R3FPointsFX } from "../"
 import * as THREE from "three"
 
 type earthGLTFResult = GLTF & {
