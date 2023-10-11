@@ -2,6 +2,12 @@
 
 [r3f-points-fx - npm ](https://www.npmjs.com/package/r3f-points-fx)
 
+
+https://github.com/VedantSG123/R3FPointsFX/assets/103552663/b70cee56-86d6-48d0-8c15-0b38c05eb9f0
+
+
+
+
 The `R3FPointsFX` component is a customizable particle system for 3D graphics built using the three.js library and integrated with React via the `@react-three/fiber` package. It allows you to create visually appealing particle effects in your 3D scenes.
 
 Just pass the array of meshes (you can load meshes from` gltf/glb` files) and see the particles arrange in its shape. Transitions can be created from one model to another.
