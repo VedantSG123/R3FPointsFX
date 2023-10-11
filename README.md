@@ -54,6 +54,10 @@ npm i r3f-points-fx
 
 [R3FPointsFX-basic - CodeSandbox](https://codesandbox.io/p/sandbox/r3fpointsfx-basic-qsq3jl)
 
+
+[R3FPointsFx-Advance - CodeSandbox](https://codesandbox.io/p/sandbox/reverent-wiles-d2ghd4)
+
+
 ## Usage
 
 Basic:
