@@ -23,6 +23,7 @@ Just pass the array of meshes (you can load meshes from` gltf/glb` files) and se
 - Use shaders to control particle behavior and appearance.
 - Incorporate data textures for particle positions.
 - Exposes methods to manipulate particle animations dynamically.
+- Highly performant as all the computation is done by shaders.
 
 ## Requirements
 
@@ -52,50 +53,112 @@ npm i r3f-points-fx
 Basic:
 
 ```jsx
-import { useState, useRef } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { R3FPointsFX } from 'r3f-points-fx'
+import React, { useState, useRef, useEffect } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { R3FPointsFX } from 'r3f-points-fx';
 
-function App() {
-  const [modelA, setModelA] = useState(null)
-  const [modelB, setModelB] = useState(null)
-  const pointsRef = useRef()
+function MyComponent() {
+  const [modelA, setModelA] = useState(null);
+  const [modelB, setModelB] = useState(null);
+  const [modelAFlag, setModelAFlag] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const startTime = useRef(0);
+  const progress = useRef(0);
+  const pointsRef = useRef(null);
+  const duration = 2;
 
-  //change the modelA and modelB to the respective indexes in the
-  //array which is being passed as modelsArray
+  const changeModel = () => {
+    startTime.current = 0;
+    setModelB(current);
+  };
+
+  useEffect(() => {
+    changeModel();
+  }, [current]);
+
+  useFrame((state) => {
+    if (startTime.current === 0) {
+      startTime.current = state.clock.elapsedTime;
+      setModelAFlag(false);
+    }
+
+    const elapsed = state.clock.elapsedTime - startTime.current;
+
+    progress.current = Math.min(elapsed / duration, 1);
+    if (progress.current >= 1 && !modelAFlag) {
+      setModelA(modelB);
+      setModelAFlag(true);
+    }
+
+    pointsRef.current?.updateProgress(progress.current);
+    pointsRef.current?.updateTime(state.clock.elapsedTime);
+  });
+
   return (
-    <Canvas>
+    <>
       {/* Other 3D components */}
       <R3FPointsFX
         modelsArray={/* Provide an array of models */}
+        // Customize other props as needed
         ref={pointsRef}
         modelA={modelA}
         modelB={modelB}
-        // Customize other props as needed
-
       />
-    </Canvas>
+    </>
   );
 }
 
-export default App
+export default MyComponent;
+
 
 ```
 
 For typescript:
 
 ```tsx
-import { useState, useRef } from "react"
-import { Canvas } from "@react-three/fiber"
+import { useState, useRef, useEffect } from "react"
+import { useFrame } from "@react-three/fiber"
 import { R3FPointsFX, R3FPointsFXRefType } from "r3f-points-fx"
 
-function App() {
+function MyComponent() {
   const [modelA, setModelA] = useState<number | null>(null)
   const [modelB, setModelB] = useState<number | null>(null)
+  const [modelAFlag, setModelAFlag] = useState(false)
+  const [current, setCurrent] = useState(0)
+  const startTime = useRef(0)
+  const progress = useRef(0)
   const pointsRef = useRef<R3fPointsFXRef>(null)
+  const duration = 2
+
+  const changeModel = () => {
+    startTime.current = 0
+    setModelB(current)
+  }
+
+  useEffect(() => {
+    changeModel()
+  }, [current])
+
+  useFrame((state) => {
+    if (startTime.current === 0) {
+      startTime.current = state.clock.elapsedTime
+      setModelAFlag(false)
+    }
+
+    const elapsed = state.clock.elapsedTime - startTime.current
+
+    progress.current = Math.min(elapsed / duration, 1)
+    if (progress.current >= 1 && !modelAFlag) {
+      setModelA(modelB)
+      setModelAFlag(true)
+    }
+
+    pointsRef.current?.updateProgress(progress.current)
+    pointsRef.current?.updateTime(state.clock.elapsedTime)
+  })
 
   return (
-    <Canvas>
+    <>
       {/* Other 3D components */}
       <R3FPointsFX
         modelsArray={/* Provide an array of models */}
@@ -104,11 +167,11 @@ function App() {
         modelA={modelA}
         modelB={modelB}
       />
-    </Canvas>
+    </>
   )
 }
 
-export default App
+export default MyComponent
 ```
 
 #### Updating progress:
@@ -118,7 +181,7 @@ Always update the progress using `pointsRef`.
 > [!Warning]
 > Do not use state variables for progress as it will cause serious performance issues.
 
-The usage of `pointsRef.udateProgress` is demonstrated in the sandbox 😊
+The usage of `pointsRef.udateProgress` and `pointsRef.updateTime` is demonstrated in the sandbox 😊
 
 #### Ref methods
 
@@ -126,7 +189,8 @@ The usage of `pointsRef.udateProgress` is demonstrated in the sandbox 😊
 | ------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `getSimulationMesh` | `const mesh = pointsRef.curret.getSimulationMesh()` | the ref to the simulation mesh                                                                          |
 | `getPointsMesh`     | `const points = pointsRef.current.getPointsMesh()`  | the ref to points mesh (this can be used to modify the position, rotation, scaling of the points mesh ) |
-| `updateProgress`    | `pointsRef.current.updateProgress(progress:number)` | the ref to the simulation mesh                                                                          |
+| `updateProgress`    | `pointsRef.current.updateProgress(progress:number)` | -                                                                                                       |
+| `updateTime`        | `pointsRef.current.updateTime(progress:number)`     | -                                                                                                       |
 
 ## Props
 

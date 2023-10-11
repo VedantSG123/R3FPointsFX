@@ -1,5 +1,11 @@
 import { useFrame, createPortal, PointsProps } from "@react-three/fiber"
-import { useMemo, useRef, forwardRef, useImperativeHandle } from "react"
+import {
+  useMemo,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+} from "react"
 import { useFBO } from "@react-three/drei"
 import * as THREE from "three"
 import surfaceSampler from "./sampler/surfaceSampler"
@@ -59,6 +65,7 @@ type R3FPointsFXRefType = {
   getSimulationMesh: () => THREE.Mesh
   getPointsMesh: () => THREE.Points
   updateProgress: (progress: number) => void
+  updateTime: (time: number) => void
 }
 
 const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
@@ -100,9 +107,46 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
       return points_frag_header + pointsFragFunctions + points_frag_main
     }, [pointsFragFunctions])
 
+    const meshUniforms = useMemo(() => {
+      return {
+        uTransitionProgress: { value: 0 },
+        uTime: { value: 0.0 },
+        positionsA: {
+          value: modelA !== null ? dataTextureArray[modelA] : null,
+        },
+        positionsB: {
+          value: modelB !== null ? dataTextureArray[modelB] : null,
+        },
+      }
+    }, [modelA, modelB])
+
     const pointsUniforms = useMemo(() => {
-      return convertToNativeUniforms(uniforms)
-    }, [uniforms])
+      return {
+        uPositions: { value: null },
+        uColor: { value: new THREE.Color(baseColor) },
+        uTime: { value: 0.0 },
+        uTransitionProgress: { value: 0 },
+        uModel1: { value: modelA },
+        uModel2: { value: modelB },
+        uPointSize: { value: pointSize },
+        uAlpha1: { value: alpha },
+        ...convertToNativeUniforms(uniforms),
+      }
+    }, [])
+
+    useEffect(() => {
+      if (points.current) {
+        if (points.current.material instanceof THREE.ShaderMaterial) {
+          points.current.material.uniforms.uColor.value = new THREE.Color(
+            baseColor
+          )
+          points.current.material.uniforms.uModel1.value = modelA
+          points.current.material.uniforms.uModel2.value = modelB
+          points.current.material.uniforms.uPointSize.value = pointSize
+          points.current.material.uniforms.uAlpha1.value = alpha
+        }
+      }
+    }, [baseColor, modelA, modelB, pointSize, alpha, uniforms])
 
     //Simulation Pass ---------------------------------------------------------------
     const scene = new THREE.Scene()
@@ -157,6 +201,18 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
             }
           }
         },
+        updateTime: (time: number) => {
+          if (meshRef.current) {
+            if (meshRef.current.material instanceof THREE.ShaderMaterial) {
+              meshRef.current.material.uniforms.uTime.value = time
+            }
+          }
+          if (points.current) {
+            if (points.current.material instanceof THREE.ShaderMaterial) {
+              points.current.material.uniforms.uTime.value = time
+            }
+          }
+        },
       }),
       []
     )
@@ -172,7 +228,6 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
         if (points.current.material instanceof THREE.ShaderMaterial) {
           points.current.material.uniforms.uPositions.value =
             renderTarget.texture
-          points.current.material.uniforms.uTime.value = state.clock.elapsedTime
         }
       }
     })
@@ -196,15 +251,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
               />
             </bufferGeometry>
             <shaderMaterial
-              uniforms={{
-                uTransitionProgress: { value: 0 },
-                positionsA: {
-                  value: modelA !== null ? dataTextureArray[modelA] : null,
-                },
-                positionsB: {
-                  value: modelB !== null ? dataTextureArray[modelB] : null,
-                },
-              }}
+              uniforms={meshUniforms}
               vertexShader={FBOMeshvert}
               fragmentShader={FBOMeshfrag}
             />
@@ -232,17 +279,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
             })}
           </bufferGeometry>
           <shaderMaterial
-            uniforms={{
-              uPositions: { value: null },
-              uColor: { value: new THREE.Color(baseColor) },
-              uTime: { value: 0 },
-              uTransitionProgress: { value: 0 },
-              uModel1: { value: modelA },
-              uModel2: { value: modelB },
-              uPointSize: { value: pointSize },
-              uAlpha1: { value: alpha },
-              ...pointsUniforms,
-            }}
+            uniforms={pointsUniforms}
             vertexShader={pointsVert}
             fragmentShader={pointsFrag}
             blending={blending}
