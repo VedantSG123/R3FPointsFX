@@ -17,6 +17,7 @@ function Experience({ current }: properties) {
           toneMapping: THREE.NoToneMapping,
         }}
         dpr={[1, 2]}
+        camera={{ position: [0, 0, 4] }}
       >
         <OrbitControls />
         <Scene current={current} />
