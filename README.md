@@ -222,7 +222,7 @@ The `R3FPointsFX` component accepts the following props:
 
 ## Customization
 
-You can pass your own uniforms and provided shader functions to give a more customized look to your particles 🤩. Use the provided shader function templates to control the color, size, shape, position of the particles.
+You can pass your own uniforms and provided shader functions to give a more customized look to your particles 🤩. Use the provided shader function templates to control the color, size, shape, position of the particles. Please check the [advance-example](https://codesandbox.io/p/sandbox/r3fpointsfx-advance-d2ghd4) for better understanding about how customization works 😉.
 
 > [!WARNING]  
 > Do not modify the names or input variables of the function, you are supposed to use the provided inputs to complete the functions as per your needs.
