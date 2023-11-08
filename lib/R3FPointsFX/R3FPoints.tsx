@@ -66,6 +66,8 @@ type R3FPointsFXRefType = {
   getPointsMesh: () => THREE.Points
   updateProgress: (progress: number) => void
   updateTime: (time: number) => void
+  setModelA: (index: number) => void
+  setModelB: (index: number) => void
 }
 
 const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
@@ -210,6 +212,30 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
           if (points.current) {
             if (points.current.material instanceof THREE.ShaderMaterial) {
               points.current.material.uniforms.uTime.value = time
+            }
+          }
+        },
+        setModelA: (index: number) => {
+          if (meshRef.current) {
+            if (meshRef.current.material instanceof THREE.ShaderMaterial) {
+              let current: null | number = null
+              if (index >= 0 && index < dataTextureArray.length) {
+                current = index
+              }
+              meshRef.current.material.uniforms.positionsA.value =
+                current !== null ? dataTextureArray[current] : null
+            }
+          }
+        },
+        setModelB: (index: number) => {
+          if (meshRef.current) {
+            if (meshRef.current.material instanceof THREE.ShaderMaterial) {
+              let current: null | number = null
+              if (index >= 0 && index < dataTextureArray.length) {
+                current = index
+              }
+              meshRef.current.material.uniforms.positionsB.value =
+                current !== null ? dataTextureArray[current] : null
             }
           }
         },
