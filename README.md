@@ -2,6 +2,12 @@
 
 [r3f-points-fx - npm ](https://www.npmjs.com/package/r3f-points-fx)
 
+
+https://github.com/VedantSG123/R3FPointsFX/assets/103552663/b70cee56-86d6-48d0-8c15-0b38c05eb9f0
+
+
+
+
 The `R3FPointsFX` component is a customizable particle system for 3D graphics built using the three.js library and integrated with React via the `@react-three/fiber` package. It allows you to create visually appealing particle effects in your 3D scenes.
 
 Just pass the array of meshes (you can load meshes from` gltf/glb` files) and see the particles arrange in its shape. Transitions can be created from one model to another.
@@ -47,6 +53,10 @@ npm i r3f-points-fx
 ## Examples
 
 [R3FPointsFX-basic - CodeSandbox](https://codesandbox.io/p/sandbox/r3fpointsfx-basic-qsq3jl)
+
+
+[R3FPointsFx-Advance - CodeSandbox](https://codesandbox.io/p/sandbox/reverent-wiles-d2ghd4)
+
 
 ## Usage
 
@@ -212,7 +222,7 @@ The `R3FPointsFX` component accepts the following props:
 
 ## Customization
 
-You can pass your own uniforms and provided shader functions to give a more customized look to your particles 🤩. Use the provided shader function templates to control the color, size, shape, position of the particles.
+You can pass your own uniforms and provided shader functions to give a more customized look to your particles 🤩. Use the provided shader function templates to control the color, size, shape, position of the particles. Please check the [advance-example](https://codesandbox.io/p/sandbox/r3fpointsfx-advance-d2ghd4) for better understanding about how customization works 😉.
 
 > [!WARNING]  
 > Do not modify the names or input variables of the function, you are supposed to use the provided inputs to complete the functions as per your needs.
