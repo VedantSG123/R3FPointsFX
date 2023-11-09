@@ -1,7 +1,7 @@
 {
   "name": "r3f-points-fx",
   "private": false,
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "React three fiber component for easily creating fbo particles meshes. Also for making the points to transition from one geometry to other.",
   "keywords": [
     "react",

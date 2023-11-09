@@ -216,26 +216,38 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
           }
         },
         setModelA: (index: number) => {
-          if (meshRef.current) {
-            if (meshRef.current.material instanceof THREE.ShaderMaterial) {
+          if (meshRef.current && points.current) {
+            if (
+              meshRef.current.material instanceof THREE.ShaderMaterial &&
+              points.current.material instanceof THREE.ShaderMaterial
+            ) {
               let current: null | number = null
               if (index >= 0 && index < dataTextureArray.length) {
                 current = index
               }
               meshRef.current.material.uniforms.positionsA.value =
                 current !== null ? dataTextureArray[current] : null
+
+              points.current.material.uniforms.uModel1.value =
+                current !== null ? current : null
             }
           }
         },
         setModelB: (index: number) => {
-          if (meshRef.current) {
-            if (meshRef.current.material instanceof THREE.ShaderMaterial) {
+          if (meshRef.current && points.current) {
+            if (
+              meshRef.current.material instanceof THREE.ShaderMaterial &&
+              points.current.material instanceof THREE.ShaderMaterial
+            ) {
               let current: null | number = null
               if (index >= 0 && index < dataTextureArray.length) {
                 current = index
               }
               meshRef.current.material.uniforms.positionsB.value =
                 current !== null ? dataTextureArray[current] : null
+
+              points.current.material.uniforms.uModel2.value =
+                current !== null ? current : null
             }
           }
         },
