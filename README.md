@@ -10,7 +10,10 @@ https://github.com/VedantSG123/R3FPointsFX/assets/103552663/b70cee56-86d6-48d0-8
 
 The `R3FPointsFX` component is a customizable particle system for 3D graphics built using the three.js library and integrated with React via the `@react-three/fiber` package. It allows you to create visually appealing particle effects in your 3D scenes.
 
-Just pass the array of meshes (you can load meshes from` gltf/glb` files) and see the particles arrange in its shape. Transitions can be created from one model to another.
+Just pass the array of meshes (you can load meshes from `gltf/glb` files) and see the particles arrange in its shape. Transitions can be created from one model to another.
+
+> [!IMPORTANT]  
+> Starting from version 1.0.4, changing the model index to transition from one arrangement to another has been added as a method of the ref of the comnponent. To prevent animation jerk caused at the end of transition due to re-render in react, it is recommended to use the methods exposed by the ref to the points mesh.
 
 ## Table of Contents
 
@@ -63,41 +66,116 @@ npm i r3f-points-fx
 Basic:
 
 ```jsx
-import React, { useState, useRef, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { R3FPointsFX } from 'r3f-points-fx';
+import React, { useRef, useEffect } from "react";
+import { useFrame } from "@react-three/fiber";
+import { R3FPointsFX } from "r3f-points-fx";
 
-function MyComponent() {
-  const [modelA, setModelA] = useState(null);
-  const [modelB, setModelB] = useState(null);
-  const [modelAFlag, setModelAFlag] = useState(false);
-  const [current, setCurrent] = useState(0);
+const MyComponent = ({ currentIndex }) => {
+  // Use useRef to store previous index, start time, progress, and PointsFX reference
+  const previousIndex = useRef(null);
   const startTime = useRef(0);
   const progress = useRef(0);
   const pointsRef = useRef(null);
   const duration = 2;
 
+  /***
+	Load your gltf meshes / define three.js defaut meshses and create an array of meshes
+	currentIndex should be set as per the index of model we want to transition to from the current model
+  ***/
+
+  // Function to change the 3D model
   const changeModel = () => {
+    if( !pointsRef.current ) return
     startTime.current = 0;
-    setModelB(current);
+    pointsRef.current.setModelB(currentIndex);
   };
 
+  // Use useEffect to trigger model change when currentIndex changes
   useEffect(() => {
     changeModel();
-  }, [current]);
+  }, [currentIndex]);
 
+  // Use useFrame to handle animation and model transition
   useFrame((state) => {
     if (startTime.current === 0) {
       startTime.current = state.clock.elapsedTime;
-      setModelAFlag(false);
     }
 
     const elapsed = state.clock.elapsedTime - startTime.current;
 
     progress.current = Math.min(elapsed / duration, 1);
-    if (progress.current >= 1 && !modelAFlag) {
-      setModelA(modelB);
-      setModelAFlag(true);
+    if (progress.current >= 1 && pointsRef.current) {
+      pointsRef.current.setModelA(currentIndex);
+      previousIndex.current = currentIndex;
+    }
+
+    if(pointsRef.current){
+      pointsRef.current.updateProgress(progress.current);
+      pointsRef.current.updateTime(state.clock.elapsedTime);
+    }
+    
+  });
+
+  return (
+    <>
+      {/* Other 3D components */}
+      <R3FPointsFX
+        modelsArray={/* Provide an array of models */}
+        // Pass other props as needed
+        ref={pointsRef}
+        modelA={previousIndex.current}
+        modelB={currentIndex}
+      />
+    </>
+  );
+};
+
+export default MyComponent
+```
+
+For typescript:
+
+```tsx
+import React, { useRef, useEffect } from "react";
+import { useFrame } from "@react-three/fiber";
+import { R3FPointsFX, R3FPointsFXRefType } from "r3f-points-fx";
+
+interface MyComponentProps {
+  currentModelIndex: number;
+}
+
+const MyComponent: React.FC<MyComponentProps> = ({ currentModelIndex }) => {
+  const previousIndex = useRef<number | null>(null);
+  const startTime = useRef(0);
+  const progress = useRef(0);
+  const pointsRef = useRef<R3FPointsFXRefType>(null);
+  const duration = 2;
+
+  /***
+	Load your gltf meshes / define three.js defaut meshses and create an array of meshes
+	currentIndex should be set as per the index of model we want to transition to from the current model
+  ***/
+  
+  const changeModel = () => {
+    startTime.current = 0;
+    pointsRef.current?.setModelB(currentModelIndex);
+  };
+
+  useEffect(() => {
+    changeModel();
+  }, [currentModelIndex]);
+
+  useFrame((state) => {
+    if (startTime.current === 0) {
+      startTime.current = state.clock.elapsedTime;
+    }
+
+    const elapsed = state.clock.elapsedTime - startTime.current;
+
+    progress.current = Math.min(elapsed / duration, 1);
+    if (progress.current >= 1) {
+      pointsRef.current?.setModelA(previousRef.current);
+      previousIndex.current = currentModelIndex;
     }
 
     pointsRef.current?.updateProgress(progress.current);
@@ -108,80 +186,18 @@ function MyComponent() {
     <>
       {/* Other 3D components */}
       <R3FPointsFX
-        modelsArray={/* Provide an array of models */}
-        // Customize other props as needed
+        modelsArray={/* Provide an array of meshes */}
+        // Pass other props as needed
         ref={pointsRef}
-        modelA={modelA}
-        modelB={modelB}
+        modelA={previousIndex.current}
+        modelB={currentModelIndex}
       />
     </>
   );
-}
+};
 
 export default MyComponent;
 
-
-```
-
-For typescript:
-
-```tsx
-import { useState, useRef, useEffect } from "react"
-import { useFrame } from "@react-three/fiber"
-import { R3FPointsFX, R3FPointsFXRefType } from "r3f-points-fx"
-
-function MyComponent() {
-  const [modelA, setModelA] = useState<number | null>(null)
-  const [modelB, setModelB] = useState<number | null>(null)
-  const [modelAFlag, setModelAFlag] = useState(false)
-  const [current, setCurrent] = useState(0)
-  const startTime = useRef(0)
-  const progress = useRef(0)
-  const pointsRef = useRef<R3fPointsFXRef>(null)
-  const duration = 2
-
-  const changeModel = () => {
-    startTime.current = 0
-    setModelB(current)
-  }
-
-  useEffect(() => {
-    changeModel()
-  }, [current])
-
-  useFrame((state) => {
-    if (startTime.current === 0) {
-      startTime.current = state.clock.elapsedTime
-      setModelAFlag(false)
-    }
-
-    const elapsed = state.clock.elapsedTime - startTime.current
-
-    progress.current = Math.min(elapsed / duration, 1)
-    if (progress.current >= 1 && !modelAFlag) {
-      setModelA(modelB)
-      setModelAFlag(true)
-    }
-
-    pointsRef.current?.updateProgress(progress.current)
-    pointsRef.current?.updateTime(state.clock.elapsedTime)
-  })
-
-  return (
-    <>
-      {/* Other 3D components */}
-      <R3FPointsFX
-        modelsArray={/* Provide an array of models */}
-        // Customize other props as needed
-        ref={pointsRef}
-        modelA={modelA}
-        modelB={modelB}
-      />
-    </>
-  )
-}
-
-export default MyComponent
 ```
 
 #### Updating progress:
@@ -193,7 +209,7 @@ Always update the progress using `pointsRef`.
 
 The usage of `pointsRef.udateProgress` and `pointsRef.updateTime` is demonstrated in the sandbox 😊
 
-#### Ref methods
+### Ref methods
 
 | Method              | Usage                                               | Return                                                                                                  |
 | ------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -201,6 +217,11 @@ The usage of `pointsRef.udateProgress` and `pointsRef.updateTime` is demonstrate
 | `getPointsMesh`     | `const points = pointsRef.current.getPointsMesh()`  | the ref to points mesh (this can be used to modify the position, rotation, scaling of the points mesh ) |
 | `updateProgress`    | `pointsRef.current.updateProgress(progress:number)` | -                                                                                                       |
 | `updateTime`        | `pointsRef.current.updateTime(progress:number)`     | -                                                                                                       |
+| `setModelA`         | `pointsRef.current.setModelA(index:number \| null)`     | -                                                                                                       |
+| `setModelB`        | `pointsRef.current.setModelB(index:number \| null)`     | -                                                                                                       |
+
+> [!IMPORTANT]  
+> Updating the time for the shader using `updateTime` is mandatory and must be done inside `useFrame` or any other similar way.
 
 ## Props
 
@@ -224,8 +245,12 @@ The `R3FPointsFX` component accepts the following props:
 
 You can pass your own uniforms and provided shader functions to give a more customized look to your particles 🤩. Use the provided shader function templates to control the color, size, shape, position of the particles. Please check the [advance-example](https://codesandbox.io/p/sandbox/r3fpointsfx-advance-d2ghd4) for better understanding about how customization works 😉.
 
+
+![Untitled-2023-12-15-1811](https://github.com/VedantSG123/R3FPointsFX/assets/103552663/7652caba-01b5-4286-8a7f-163feddf7725)
+
+
 > [!WARNING]  
-> Do not modify the names or input variables of the function, you are supposed to use the provided inputs to complete the functions as per your needs.
+> Do not modify the names of the function, you are supposed to use the global variables / input variables to the function to achieve the effect, even if you want your custom functions to run, just place them in these template functions.
 
 Finally pass these templates (with whatever changes you have done) as props to the component. If your are not using any function just let it remain same as the template, **changing the name or input params** of these function will cause shader to crash.
 
