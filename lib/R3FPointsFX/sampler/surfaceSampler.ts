@@ -1,5 +1,5 @@
-import * as THREE from "three"
-import { MeshSurfaceSampler } from "three/addons/math/MeshSurfaceSampler.js"
+import * as THREE from 'three'
+import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js'
 
 const surfaceSampler = (size: number, mesh: THREE.Mesh) => {
   const length = size * size * 4
@@ -23,7 +23,7 @@ const surfaceSampler = (size: number, mesh: THREE.Mesh) => {
     size,
     size,
     THREE.RGBAFormat,
-    THREE.FloatType
+    THREE.FloatType,
   )
   positionsTexture.needsUpdate = true
 

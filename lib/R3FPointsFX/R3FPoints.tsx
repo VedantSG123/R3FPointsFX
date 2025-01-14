@@ -1,41 +1,43 @@
-import { useFrame, createPortal, PointsProps } from "@react-three/fiber"
+import { useFBO } from '@react-three/drei'
+import type { PointsProps } from '@react-three/fiber'
+import { createPortal, useFrame } from '@react-three/fiber'
 import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from "react"
-import { useFBO } from "@react-three/drei"
-import * as THREE from "three"
-import surfaceSampler from "./sampler/surfaceSampler"
-import { convertToNativeUniforms } from "./helpers/convert"
+} from 'react'
+import * as THREE from 'three'
+
+import { convertToNativeUniforms } from './helpers/convert'
+import surfaceSampler from './sampler/surfaceSampler'
+import FBOMeshfrag from './shaders/FBOfrag'
 //shaders---------------------------------------------------------
-import FBOMeshvert from "./shaders/FBOMeshvert"
-import FBOMeshfrag from "./shaders/FBOMeshfrag"
-import points_vert_header from "./shaders/points_vert_header"
-import points_vert_defaults from "./shaders/points_vert_defaults"
-import points_vert_main from "./shaders/points_vert_main"
-import points_frag_header from "./shaders/points_frag_header"
-import points_frag_defaults from "./shaders/points_frag_defaults"
-import points_frag_main from "./shaders/points_frag_main"
+import FBOMeshvert from './shaders/FBOvert'
+import points_frag_defaults from './shaders/points_frag_defaults'
+import points_frag_header from './shaders/points_frag_header'
+import points_frag_main from './shaders/points_frag_main'
+import points_vert_defaults from './shaders/points_vert_defaults'
+import points_vert_header from './shaders/points_vert_header'
+import points_vert_main from './shaders/points_vert_main'
 
 type uniforms = {
   [name: string]:
-    | THREE.CubeTexture
-    | THREE.Texture
-    | Int32Array
-    | Float32Array
-    | THREE.Matrix4
-    | THREE.Matrix3
-    | THREE.Quaternion
-    | THREE.Vector4
-    | THREE.Vector3
-    | THREE.Vector2
-    | THREE.Color
-    | number
-    | boolean
     | Array<any>
+    | Float32Array
+    | Int32Array
+    | THREE.Color
+    | THREE.CubeTexture
+    | THREE.Matrix3
+    | THREE.Matrix4
+    | THREE.Quaternion
+    | THREE.Texture
+    | THREE.Vector2
+    | THREE.Vector3
+    | THREE.Vector4
+    | boolean
+    | number
     | null
 }
 
@@ -81,14 +83,14 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
       modelB = null,
       progress = 0,
       uniforms = {},
-      baseColor = "#FFF",
+      baseColor = '#FFF',
       pointSize = 1.0,
       alpha = 1.0,
       attributes = [],
       blending = THREE.AdditiveBlending,
       ...meshProps
     }: properties,
-    outerRef
+    outerRef,
   ) => {
     const dataTextureArray = useMemo(() => {
       const arr: THREE.DataTexture[] = []
@@ -140,7 +142,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
       if (points.current) {
         if (points.current.material instanceof THREE.ShaderMaterial) {
           points.current.material.uniforms.uColor.value = new THREE.Color(
-            baseColor
+            baseColor,
           )
           points.current.material.uniforms.uModel1.value = modelA
           points.current.material.uniforms.uModel2.value = modelB
@@ -158,7 +160,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
       1,
       -1,
       1 / Math.pow(2, 53),
-      1
+      1,
     )
     const positions = new Float32Array([
       -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0,
@@ -175,7 +177,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
       const length = pointsCount * pointsCount
       const particles = new Float32Array(length * 3)
       for (let i = 0; i < length; i++) {
-        let i3 = i * 3
+        const i3 = i * 3
         particles[i3 + 0] = (i % pointsCount) / pointsCount
         particles[i3 + 1] = i / pointsCount / pointsCount
       }
@@ -221,7 +223,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
               meshRef.current.material instanceof THREE.ShaderMaterial &&
               points.current.material instanceof THREE.ShaderMaterial
             ) {
-              let current: null | number = null
+              let current: number | null = null
               if (index >= 0 && index < dataTextureArray.length) {
                 current = index
               }
@@ -239,7 +241,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
               meshRef.current.material instanceof THREE.ShaderMaterial &&
               points.current.material instanceof THREE.ShaderMaterial
             ) {
-              let current: null | number = null
+              let current: number | null = null
               if (index >= 0 && index < dataTextureArray.length) {
                 current = index
               }
@@ -252,7 +254,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
           }
         },
       }),
-      []
+      [],
     )
 
     useFrame((state) => {
@@ -276,13 +278,13 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
           <mesh ref={meshRef}>
             <bufferGeometry>
               <bufferAttribute
-                attach="attributes-position"
+                attach='attributes-position'
                 count={positions.length / 3}
                 array={positions}
                 itemSize={3}
               />
               <bufferAttribute
-                attach="attributes-uv"
+                attach='attributes-uv'
                 count={uvs.length / 2}
                 array={uvs}
                 itemSize={2}
@@ -294,12 +296,12 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
               fragmentShader={FBOMeshfrag}
             />
           </mesh>,
-          scene
+          scene,
         )}
         <points ref={points} {...meshProps}>
           <bufferGeometry>
             <bufferAttribute
-              attach="attributes-position"
+              attach='attributes-position'
               count={particlesPosition.length / 3}
               array={particlesPosition}
               itemSize={3}
@@ -326,7 +328,7 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
         </points>
       </>
     )
-  }
+  },
 )
 export type { R3FPointsFXRefType }
 export { R3FPointsFX }

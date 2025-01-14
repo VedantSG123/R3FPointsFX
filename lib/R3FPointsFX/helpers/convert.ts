@@ -1,20 +1,20 @@
-import * as THREE from "three"
+import * as THREE from 'three'
 type uniforms = {
   [name: string]:
-    | THREE.CubeTexture
-    | THREE.Texture
-    | Int32Array
-    | Float32Array
-    | THREE.Matrix4
-    | THREE.Matrix3
-    | THREE.Quaternion
-    | THREE.Vector4
-    | THREE.Vector3
-    | THREE.Vector2
-    | THREE.Color
-    | number
-    | boolean
     | Array<any>
+    | Float32Array
+    | Int32Array
+    | THREE.Color
+    | THREE.CubeTexture
+    | THREE.Matrix3
+    | THREE.Matrix4
+    | THREE.Quaternion
+    | THREE.Texture
+    | THREE.Vector2
+    | THREE.Vector3
+    | THREE.Vector4
+    | boolean
+    | number
     | null
 }
 

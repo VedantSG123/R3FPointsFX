@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+*{
+  margin: 0;
+  padding: 0;
+}
+  
+body, html {
+  height: 100%;
+  font-family: "Nunito Sans", serif;
+}
+
+#root {
+  height: 100%;
+}
+
+.transparent-box {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background-color: #03100945;
+  border: 1px solid #ffffff36;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 2.6875em #03110921;
+}

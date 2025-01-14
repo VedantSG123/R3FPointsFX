@@ -1,60 +1,31 @@
 {
   "name": "r3f-points-fx",
-  "private": false,
-  "version": "1.0.4",
-  "description": "React three fiber component for easily creating fbo particles meshes. Also for making the points to transition from one geometry to other.",
-  "keywords": [
-    "react",
-    "@react-three/fiber",
-    "react-three-fiber particles",
-    "three js points",
-    "three js",
-    "3d",
-    "particles"
+  "private": true,
+  "workspaces": [
+    "lib",
+    "example"
   ],
-  "license": "MIT",
-  "type": "module",
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts",
-  "files": [
-    "dist"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/VedantSG123/R3FPointsFX"
-  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --p ./tsconfig-build.json && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "prepublishOnly": "npm run build"
-  },
-  "dependencies": {
-    "@react-three/drei": "^9.87.0"
-  },
-  "peerDependencies": {
-    "@react-three/fiber": "^8.14.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "three": "^0.157.0"
+    "dev:example": "npm run dev --workspace=example",
+    "build:example": "npm run build --workspace=example",
+    "serve:example": "npm run serve --workspace=example",
+    "build": "npm run build --workspace=lib",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
-    "@leva-ui/plugin-bezier": "^0.9.19",
-    "@types/node": "^20.8.3",
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@types/three": "^0.156.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react": "^4.0.3",
-    "eslint": "^8.45.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.3",
-    "glob": "^10.3.10",
-    "leva": "^0.9.35",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vite-plugin-dts": "^3.6.0"
+    "@eslint/compat": "^1.2.2",
+    "@eslint/js": "^9.14.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.14.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.12.0",
+    "prettier": "3.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.13.0",
+    "vite": "^6.0.6",
+    "vite-plugin-dts": "^4.4.0"
   }
 }
