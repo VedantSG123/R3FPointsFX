@@ -1,8 +1,9 @@
 import { shaderMaterial } from '@react-three/drei'
-import * as THREE from 'three'
+import type * as THREE from 'three'
 
 type uniforms = {
   [name: string]:
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | Array<any>
     | Float32Array
     | Int32Array

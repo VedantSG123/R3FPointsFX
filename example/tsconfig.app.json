@@ -25,5 +25,6 @@
         "r3f-points-fx": ["../lib/main.ts", "../lib/R3FPointsFX/*"]
       }
     },
-    "include": ["src"]
+    "include": ["src"],
+    "exclude": ["dist", "node_modules"]
   }

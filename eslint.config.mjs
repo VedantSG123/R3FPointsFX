@@ -8,7 +8,7 @@ import tseslint from 'typescript-eslint'
 export default [
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
-    ignores: ['node_modules', 'dist'],
+    ignores: ['**/node_modules/**', '**/dist/**'],
   },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
@@ -35,7 +35,29 @@ export default [
     },
   },
   {
-    files: ['eslint.config.js'],
+    files: ['lib/**/*.{ts,tsx}'],
+    ignores: ['**/node_modules/**', '**/dist/**'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        project: './lib/tsconfig.json',
+        tsconfigRootDir: `${import.meta.dirname}/lib`,
+      },
+    }
+  },
+  {
+    files: ['example/**/*.{ts,tsx}'],
+    ignores: ['**/node_modules/**', '**/dist/**'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        project: './example/tsconfig.json',
+        tsconfigRootDir: `${import.meta.dirname}/example`,
+      },
+    }
+  },
+  {
+    files: ['eslint.config.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
 ]

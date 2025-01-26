@@ -18,6 +18,6 @@
       "noUnusedParameters": true,
       "noFallthroughCasesInSwitch": true
     },
-    "include": ["vite.config.mts"]
+    "include": ["vite.config.mts", "postcss.config.ts", "tailwind.config.ts"]
   }
   

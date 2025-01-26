@@ -1,17 +1,19 @@
+import { useFBO } from '@react-three/drei'
+import { createPortal, type PointsProps,useFrame } from '@react-three/fiber'
 import * as React from 'react'
 import * as THREE from 'three'
-import { createPortal, useFrame, type PointsProps } from '@react-three/fiber'
-import surfaceSampler from './sampler/surfaceSampler'
+
 import { convertToNativeUniforms } from './helpers/convert'
-import { useFBO } from '@react-three/drei'
-/* shaders */
-import fbo_vert from './shaders/FBOvert'
+import surfaceSampler from './sampler/surfaceSampler'
 import fbo_frag from './shaders/FBOfrag'
-import { PointsVertexShader } from './shaders/PointsVertexShader'
+import fbo_vert from './shaders/FBOvert'
 import { PointsFragmentShader } from './shaders/PointsFragmentShader'
+import { PointsVertexShader } from './shaders/PointsVertexShader'
+
 
 type uniforms = {
   [name: string]:
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | Array<any>
     | Float32Array
     | Int32Array
@@ -102,7 +104,7 @@ export const R3FPointsFX = React.forwardRef<
           positionsA: modelA !== null ? dataTextures[modelA] : null,
           positionsB: modelB !== null ? dataTextures[modelB] : null,
         }),
-      [modelA, modelB],
+      [modelA, modelB, dataTextures],
     )
 
     const particleShaderMaterial = React.useRef<THREE.ShaderMaterial>(

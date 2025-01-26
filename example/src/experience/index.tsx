@@ -1,10 +1,10 @@
-import * as React from 'react'
 import { CameraControls } from '@react-three/drei'
 import { Canvas, useThree } from '@react-three/fiber'
-import { R3FPointsFX } from 'r3f-points-fx'
-import * as THREE from 'three'
 import { useControls } from 'leva'
 import type { R3FPointsFXRefType } from 'r3f-points-fx'
+import { R3FPointsFX } from 'r3f-points-fx'
+import * as React from 'react'
+import * as THREE from 'three'
 
 const vertexModifier = `
 uniform float uHeight;

@@ -1,7 +1,8 @@
+import { Leva } from 'leva'
+import { BrowserRouter, Route,Routes } from 'react-router'
+
 import { AppHeader } from './components/AppHeader'
 import { Experience } from './experience'
-import { Leva } from 'leva'
-import { BrowserRouter, Routes, Route } from 'react-router'
 import { Home } from './pages/Home'
 
 function App() {

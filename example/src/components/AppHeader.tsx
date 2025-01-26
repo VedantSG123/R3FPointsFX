@@ -1,5 +1,6 @@
+import { MoonIcon,SunIcon } from '@radix-ui/react-icons'
 import { Button, Heading, IconButton } from '@radix-ui/themes'
-import { SunIcon, MoonIcon } from '@radix-ui/react-icons'
+
 import { useTheme } from '../providers/ThemeProvider'
 
 export const AppHeader = () => {
