@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 type uniforms = {
-  [name: string]:
-    | Array<any>
+  [name: string]: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | Array<any>
     | Float32Array
     | Int32Array
     | THREE.Color

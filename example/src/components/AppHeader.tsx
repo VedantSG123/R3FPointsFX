@@ -1,4 +1,4 @@
-import { MoonIcon,SunIcon } from '@radix-ui/react-icons'
+import { MoonIcon, SunIcon } from '@radix-ui/react-icons'
 import { Button, Heading, IconButton } from '@radix-ui/themes'
 
 import { useTheme } from '../providers/ThemeProvider'

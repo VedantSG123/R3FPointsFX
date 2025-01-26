@@ -1,4 +1,5 @@
 import pluginJs from '@eslint/js'
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import hooksPugin from 'eslint-plugin-react-hooks'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import globals from 'globals'
@@ -43,7 +44,7 @@ export default [
         project: './lib/tsconfig.json',
         tsconfigRootDir: `${import.meta.dirname}/lib`,
       },
-    }
+    },
   },
   {
     files: ['example/**/*.{ts,tsx}'],
@@ -54,10 +55,11 @@ export default [
         project: './example/tsconfig.json',
         tsconfigRootDir: `${import.meta.dirname}/example`,
       },
-    }
+    },
   },
   {
     files: ['eslint.config.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
+  eslintPluginPrettierRecommended,
 ]

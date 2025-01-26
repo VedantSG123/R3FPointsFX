@@ -1,1 +1,1 @@
-export * from './R3FPointsFX/R3FNext'
+export * from './R3FPointsFX/R3FPointsFX'

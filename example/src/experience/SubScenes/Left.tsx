@@ -1,10 +1,13 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas } from '@react-three/fiber'
 
-export const Left = () => {
-    return <Canvas>
-        <mesh>
-            <boxGeometry />
-        </mesh>
+const Left = () => {
+  return (
+    <Canvas>
+      <mesh>
+        <boxGeometry />
+      </mesh>
     </Canvas>
+  )
 }
 
+export default Left

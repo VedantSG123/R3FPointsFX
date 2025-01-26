@@ -1,5 +1,5 @@
 import { useFBO } from '@react-three/drei'
-import { createPortal, type PointsProps,useFrame } from '@react-three/fiber'
+import { createPortal, type PointsProps, useFrame } from '@react-three/fiber'
 import * as React from 'react'
 import * as THREE from 'three'
 
@@ -10,11 +10,9 @@ import fbo_vert from './shaders/FBOvert'
 import { PointsFragmentShader } from './shaders/PointsFragmentShader'
 import { PointsVertexShader } from './shaders/PointsVertexShader'
 
-
 type uniforms = {
-  [name: string]:
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    | Array<any>
+  [name: string]: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | Array<any>
     | Float32Array
     | Int32Array
     | THREE.Color
