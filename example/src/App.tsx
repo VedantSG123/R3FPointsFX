@@ -9,9 +9,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <div className='w-full fixed top-1 px-2 max-w-[1200px] left-1/2 -translate-x-1/2 z-40'>
-          <AppHeader />
-        </div>
+        <AppHeader />
         <div>
           <Routes>
             <Route path='/' element={<Home />} />

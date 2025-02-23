@@ -18,6 +18,7 @@ export default defineConfig({
   resolve: {
     alias: {
       'r3f-points-fx': path.resolve(__dirname, '../lib/main.ts'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
 })

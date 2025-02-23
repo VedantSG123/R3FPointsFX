@@ -48,6 +48,7 @@ export type R3FPointsPropsType = PointsProps & {
   blending?: THREE.Blending
   vertexModifier?: string
   fragmentModifier?: string
+  progress?: number
 }
 
 export type R3FPointsFXRefType = {
@@ -77,6 +78,7 @@ export const R3FPointsFX = React.forwardRef<
       blending = THREE.AdditiveBlending,
       vertexModifier,
       fragmentModifier,
+      progress,
       ...rest
     }: R3FPointsPropsType,
     outerRef,
@@ -125,8 +127,22 @@ export const R3FPointsFX = React.forwardRef<
       }),
     )
 
+    const updateProgress = React.useCallback((progress: number) => {
+      if (fboRef.current) {
+        if (fboRef.current.material instanceof THREE.ShaderMaterial) {
+          fboRef.current.material.uniforms.uTransitionProgress.value = Math.min(
+            progress,
+            1,
+          )
+        }
+      }
+
+      particleShaderMaterial.current.uniforms.uTransitionProgress.value =
+        Math.min(progress, 1)
+    }, [])
+
     React.useEffect(() => {
-      if (!particleShaderMaterial) return
+      if (!particleShaderMaterial || !particleShaderMaterial.current) return
 
       particleShaderMaterial.current.uniforms.uColor.value = baseColor
       particleShaderMaterial.current.uniforms.uPointSize.value = pointSize
@@ -134,19 +150,24 @@ export const R3FPointsFX = React.forwardRef<
       particleShaderMaterial.current.uniforms.uModel1.value = modelA
       particleShaderMaterial.current.uniforms.uModel2.value = modelB
 
+      if (progress) {
+        updateProgress(progress)
+      }
+
       Object.entries(uniforms).forEach(([key, value]) => {
         if (particleShaderMaterial.current.uniforms[key]) {
           particleShaderMaterial.current.uniforms[key].value = value
         }
       })
     }, [
-      particleShaderMaterial,
       baseColor,
       pointSize,
       alpha,
       modelA,
       modelB,
       uniforms,
+      progress,
+      updateProgress,
     ])
 
     /**
@@ -189,17 +210,7 @@ export const R3FPointsFX = React.forwardRef<
       () => ({
         getSimulationMesh: () => fboRef.current,
         getPointsMesh: () => pointsRef.current,
-        updateProgress: (progress: number) => {
-          if (fboRef.current) {
-            if (fboRef.current.material instanceof THREE.ShaderMaterial) {
-              fboRef.current.material.uniforms.uTransitionProgress.value =
-                progress
-            }
-          }
-
-          particleShaderMaterial.current.uniforms.uTransitionProgress.value =
-            progress
-        },
+        updateProgress,
         updateTime: (time: number) => {
           if (fboRef.current) {
             if (fboRef.current.material instanceof THREE.ShaderMaterial) {
@@ -231,6 +242,7 @@ export const R3FPointsFX = React.forwardRef<
               if (index >= 0 && index < dataTextures.length) {
                 current = index
               }
+
               fboRef.current.material.uniforms.positionsB.value =
                 current !== null ? dataTextures[current] : null
 
@@ -240,7 +252,7 @@ export const R3FPointsFX = React.forwardRef<
           }
         },
       }),
-      [dataTextures],
+      [dataTextures, updateProgress],
     )
 
     useFrame((state) => {

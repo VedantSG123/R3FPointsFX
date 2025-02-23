@@ -1,5 +1,6 @@
-import { MoonIcon, SunIcon } from '@radix-ui/react-icons'
-import { Button, Heading, IconButton } from '@radix-ui/themes'
+import { Moon, Sun } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
 
 import { useTheme } from '../providers/ThemeProvider'
 
@@ -7,30 +8,25 @@ export const AppHeader = () => {
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className='transparent-box'>
-      <div className='flex justify-between w-full py-3 px-4 items-center'>
-        <Heading className='text-white'>Points FX</Heading>
-
-        <div className='flex gap-4 bg-transparent'>
-          <Button color='gray' variant='ghost' radius='full'>
-            Home
-          </Button>
-          <Button color='gray' variant='ghost' radius='full'>
-            Examples
-          </Button>
-          <Button color='gray' variant='ghost' radius='full'>
-            Docs
-          </Button>
+    <header className='border-grid sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+      <div className='container mx-auto flex justify-between w-full py-3 px-4 items-center'>
+        <div className='flex items-center gap-6'>
+          <div className='font-bold text-2xl'>Points FX</div>
+          <div className='flex bg-transparent'>
+            <Button variant='ghost'>Home</Button>
+            <Button variant='ghost'>Examples</Button>
+            <Button variant='ghost'>Docs</Button>
+          </div>
         </div>
 
-        <IconButton
+        <Button
           variant='ghost'
-          size='4'
+          size='icon'
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         >
-          {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
-        </IconButton>
+          {theme === 'dark' ? <Moon /> : <Sun />}
+        </Button>
       </div>
-    </div>
+    </header>
   )
 }
