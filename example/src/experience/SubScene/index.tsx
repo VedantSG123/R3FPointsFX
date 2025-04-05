@@ -1,32 +1,27 @@
+import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
-import { useSubsceneModels } from '../hooks/useSubsceneModels'
-import type { ParticlesType } from './Particles'
 import { Particles } from './Particles'
 
 export const Subscene = () => {
-  const { meshes, nextModel } = useSubsceneModels()
-
   return (
-    <div className='flex items-center w-full'>
-      <div className='w-[40%] max-w-[400px] h-[600px] transparent-box'></div>
-      <div className='flex-grow h-1 bg-slate-500'></div>
-      <div className='w-[40%] max-w-[400px] h-[600px] transparent-box'>
-        <ParticlesScene meshes={meshes} nextIndex={nextModel} />
+    <div className='w-full flex justify-center'>
+      <div className='w-full max-w-[800px] '>
+        <div className='w-full pb-[56.25%] relative'>
+          <div className='absolute top-0 left-0 w-full h-full rounded-xl bg-black'>
+            <ParticlesScene />
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-const ParticlesScene: React.FC<ParticlesSceneType> = ({
-  meshes,
-  nextIndex,
-}) => {
+const ParticlesScene = () => {
   return (
-    <Canvas>
-      <Particles meshes={meshes} nextIndex={nextIndex} />
+    <Canvas camera={{ position: [0, 0, 5] }}>
+      <OrbitControls />
+      <Particles />
     </Canvas>
   )
 }
-
-type ParticlesSceneType = ParticlesType

@@ -1,12 +1,18 @@
 import { useFBO } from '@react-three/drei'
-import { createPortal, type PointsProps, useFrame } from '@react-three/fiber'
+import {
+  createPortal,
+  type PointsProps,
+  useFrame,
+  useThree,
+} from '@react-three/fiber'
 import * as React from 'react'
 import * as THREE from 'three'
 
+import { computePositionDataTexture } from './helpers/computePositionDataTexture'
 import { convertToNativeUniforms } from './helpers/convert'
-import surfaceSampler from './sampler/surfaceSampler'
-import fbo_frag from './shaders/FBOfrag'
-import fbo_vert from './shaders/FBOvert'
+import { nextPerfectSquare } from './helpers/nextPerfectSquare'
+import { FBOfrag } from './shaders/FBOfrag'
+import { FBOvert } from './shaders/FBOvert'
 import { PointsFragmentShader } from './shaders/PointsFragmentShader'
 import { PointsVertexShader } from './shaders/PointsVertexShader'
 
@@ -48,7 +54,10 @@ export type R3FPointsPropsType = PointsProps & {
   blending?: THREE.Blending
   vertexModifier?: string
   fragmentModifier?: string
+  progressModifier?: string
   progress?: number
+  sizeAttenutation?: boolean
+  organizedParticleIndexes?: number[]
 }
 
 export type R3FPointsFXRefType = {
@@ -67,18 +76,20 @@ export const R3FPointsFX = React.forwardRef<
   (
     {
       models,
-      pointsCount = 120,
+      pointsCount = 1000,
       modelA = null,
       modelB = null,
       uniforms = {},
       baseColor = new THREE.Color(0, 0, 0),
-      pointSize = 1,
+      pointSize = 0.1,
       alpha = 1,
       attributes = [],
       blending = THREE.AdditiveBlending,
       vertexModifier,
       fragmentModifier,
       progress,
+      sizeAttenutation = true,
+      organizedParticleIndexes = [],
       ...rest
     }: R3FPointsPropsType,
     outerRef,
@@ -86,15 +97,30 @@ export const R3FPointsFX = React.forwardRef<
     const fboRef = React.useRef<THREE.Mesh>(null)
     const pointsRef = React.useRef<THREE.Points>(null)
 
+    const {
+      gl,
+      size: { width, height },
+    } = useThree()
+
+    const count = React.useMemo(() => {
+      return nextPerfectSquare(pointsCount)
+    }, [pointsCount])
+
     const dataTextures = React.useMemo(() => {
       const result: THREE.DataTexture[] = []
 
-      models.forEach((model) => {
-        result.push(surfaceSampler(pointsCount, model))
+      models.forEach((model, index) => {
+        result.push(
+          computePositionDataTexture(
+            count,
+            model,
+            organizedParticleIndexes.includes(index),
+          ),
+        )
       })
 
       return result
-    }, [models, pointsCount])
+    }, [models, count, organizedParticleIndexes])
 
     const fboShaderUniforms = React.useMemo(
       () =>
@@ -116,11 +142,13 @@ export const R3FPointsFX = React.forwardRef<
           uTransitionProgress: 0,
           uModel1: modelA,
           uModel2: modelB,
-          uPointSize: pointSize,
+          uPointSize: pointSize / 10,
           uAlpha: alpha,
+          uViewPort: new THREE.Vector2(width, height),
+          uDpr: gl.getPixelRatio(),
           ...uniforms,
         }),
-        vertexShader: PointsVertexShader(vertexModifier),
+        vertexShader: PointsVertexShader(vertexModifier, sizeAttenutation),
         fragmentShader: PointsFragmentShader(fragmentModifier),
         depthWrite: false,
         blending,
@@ -145,7 +173,7 @@ export const R3FPointsFX = React.forwardRef<
       if (!particleShaderMaterial || !particleShaderMaterial.current) return
 
       particleShaderMaterial.current.uniforms.uColor.value = baseColor
-      particleShaderMaterial.current.uniforms.uPointSize.value = pointSize
+      particleShaderMaterial.current.uniforms.uPointSize.value = pointSize / 10
       particleShaderMaterial.current.uniforms.uAlpha.value = alpha
       particleShaderMaterial.current.uniforms.uModel1.value = modelA
       particleShaderMaterial.current.uniforms.uModel2.value = modelB
@@ -169,6 +197,18 @@ export const R3FPointsFX = React.forwardRef<
       progress,
       updateProgress,
     ])
+
+    //width, height change in separate effet
+    React.useEffect(() => {
+      if (!particleShaderMaterial || !particleShaderMaterial.current) {
+        return
+      }
+
+      ;(
+        particleShaderMaterial.current.uniforms.uViewPort.value as THREE.Vector2
+      ).set(width, height)
+      particleShaderMaterial.current.uniforms.uDpr.value = gl.getPixelRatio()
+    }, [width, height, gl])
 
     /**
      * ---------------- Simulation Pass --------------
@@ -194,16 +234,18 @@ export const R3FPointsFX = React.forwardRef<
     })
 
     const particlesPosition = React.useMemo(() => {
-      const length = pointsCount * pointsCount
-      const particles = new Float32Array(length * 3)
-      for (let i = 0; i < length; i++) {
+      const textureHeight = Math.sqrt(count)
+      const textureWidth = textureHeight
+
+      const particles = new Float32Array(count * 3)
+      for (let i = 0; i < count; i++) {
         const i3 = i * 3
-        particles[i3 + 0] = (i % pointsCount) / pointsCount
-        particles[i3 + 1] = i / pointsCount / pointsCount
+        particles[i3 + 0] = (i % textureWidth) / textureWidth
+        particles[i3 + 1] = i / textureWidth / textureHeight
       }
 
       return particles
-    }, [pointsCount])
+    }, [count])
 
     React.useImperativeHandle(
       outerRef,
@@ -282,11 +324,20 @@ export const R3FPointsFX = React.forwardRef<
                 array={uvs}
                 itemSize={2}
               />
+              {attributes.map((attribute, index) => (
+                <bufferAttribute
+                  key={index}
+                  attach={attribute.attach}
+                  count={attribute.array.length / attribute.itemSize}
+                  array={attribute.array}
+                  itemSize={attribute.itemSize}
+                />
+              ))}
             </bufferGeometry>
             <shaderMaterial
               uniforms={fboShaderUniforms}
-              vertexShader={fbo_vert}
-              fragmentShader={fbo_frag}
+              vertexShader={FBOvert()}
+              fragmentShader={FBOfrag}
             />
           </mesh>,
           scene,
