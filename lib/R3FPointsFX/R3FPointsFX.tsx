@@ -87,6 +87,7 @@ export const R3FPointsFX = React.forwardRef<
       blending = THREE.AdditiveBlending,
       vertexModifier,
       fragmentModifier,
+      progressModifier,
       progress,
       sizeAttenutation = true,
       organizedParticleIndexes = [],
@@ -129,8 +130,11 @@ export const R3FPointsFX = React.forwardRef<
           uTime: 0,
           positionsA: modelA !== null ? dataTextures[modelA] : null,
           positionsB: modelB !== null ? dataTextures[modelB] : null,
+          uModel1: modelA,
+          uModel2: modelB,
         }),
-      [modelA, modelB, dataTextures],
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [dataTextures],
     )
 
     const particleShaderMaterial = React.useRef<THREE.ShaderMaterial>(
@@ -139,7 +143,6 @@ export const R3FPointsFX = React.forwardRef<
           uPosition: null,
           uColor: baseColor,
           uTime: 0,
-          uTransitionProgress: 0,
           uModel1: modelA,
           uModel2: modelB,
           uPointSize: pointSize / 10,
@@ -164,10 +167,44 @@ export const R3FPointsFX = React.forwardRef<
           )
         }
       }
-
-      particleShaderMaterial.current.uniforms.uTransitionProgress.value =
-        Math.min(progress, 1)
     }, [])
+
+    const setModelA = React.useCallback(
+      (index: number) => {
+        let current: number | null = null
+        if (index >= 0 && index < dataTextures.length) {
+          current = index
+        }
+        if (fboRef.current) {
+          if (fboRef.current.material instanceof THREE.ShaderMaterial) {
+            fboRef.current.material.uniforms.positionsA.value =
+              current !== null ? dataTextures[current] : null
+
+            fboRef.current.material.uniforms.uModel1.value = current
+          }
+        }
+      },
+      [dataTextures],
+    )
+
+    const setModelB = React.useCallback(
+      (index: number) => {
+        if (fboRef.current) {
+          let current: number | null = null
+          if (index >= 0 && index < dataTextures.length) {
+            current = index
+          }
+
+          if (fboRef.current.material instanceof THREE.ShaderMaterial) {
+            fboRef.current.material.uniforms.positionsB.value =
+              current !== null ? dataTextures[current] : null
+
+            fboRef.current.material.uniforms.uModel2.value = current
+          }
+        }
+      },
+      [dataTextures],
+    )
 
     React.useEffect(() => {
       if (!particleShaderMaterial || !particleShaderMaterial.current) return
@@ -175,28 +212,30 @@ export const R3FPointsFX = React.forwardRef<
       particleShaderMaterial.current.uniforms.uColor.value = baseColor
       particleShaderMaterial.current.uniforms.uPointSize.value = pointSize / 10
       particleShaderMaterial.current.uniforms.uAlpha.value = alpha
-      particleShaderMaterial.current.uniforms.uModel1.value = modelA
-      particleShaderMaterial.current.uniforms.uModel2.value = modelB
-
-      if (progress) {
-        updateProgress(progress)
-      }
 
       Object.entries(uniforms).forEach(([key, value]) => {
         if (particleShaderMaterial.current.uniforms[key]) {
           particleShaderMaterial.current.uniforms[key].value = value
         }
       })
-    }, [
-      baseColor,
-      pointSize,
-      alpha,
-      modelA,
-      modelB,
-      uniforms,
-      progress,
-      updateProgress,
-    ])
+    }, [baseColor, pointSize, alpha, uniforms])
+
+    // effect for updating progress
+    React.useEffect(() => {
+      if (progress) {
+        updateProgress(progress)
+      }
+    }, [progress, updateProgress])
+
+    // effect for updating models
+    React.useEffect(() => {
+      if (modelA !== null) {
+        setModelA(modelA)
+      }
+      if (modelB !== null) {
+        setModelB(modelB)
+      }
+    }, [modelA, modelB, setModelA, setModelB])
 
     //width, height change in separate effet
     React.useEffect(() => {
@@ -262,39 +301,10 @@ export const R3FPointsFX = React.forwardRef<
 
           particleShaderMaterial.current.uniforms.uTime.value = time
         },
-        setModelA: (index: number) => {
-          if (fboRef.current) {
-            if (fboRef.current.material instanceof THREE.ShaderMaterial) {
-              let current: number | null = null
-              if (index >= 0 && index < dataTextures.length) {
-                current = index
-              }
-              fboRef.current.material.uniforms.positionsA.value =
-                current !== null ? dataTextures[current] : null
-
-              particleShaderMaterial.current.uniforms.uModel1.value =
-                current !== null ? current : null
-            }
-          }
-        },
-        setModelB: (index: number) => {
-          if (fboRef.current) {
-            if (fboRef.current.material instanceof THREE.ShaderMaterial) {
-              let current: number | null = null
-              if (index >= 0 && index < dataTextures.length) {
-                current = index
-              }
-
-              fboRef.current.material.uniforms.positionsB.value =
-                current !== null ? dataTextures[current] : null
-
-              particleShaderMaterial.current.uniforms.uModel2.value =
-                current !== null ? current : null
-            }
-          }
-        },
+        setModelA,
+        setModelB,
       }),
-      [dataTextures, updateProgress],
+      [updateProgress, setModelA, setModelB],
     )
 
     useFrame((state) => {
@@ -305,6 +315,24 @@ export const R3FPointsFX = React.forwardRef<
       gl.setRenderTarget(null)
       particleShaderMaterial.current.uniforms.uPosition.value =
         renderTarget.texture
+      if (
+        fboRef.current &&
+        fboRef.current.material instanceof THREE.ShaderMaterial
+      ) {
+        const model1 = fboRef.current.material.uniforms.uModel1.value as
+          | number
+          | null
+        const model2 = fboRef.current.material.uniforms.uModel2.value as
+          | number
+          | null
+
+        if (particleShaderMaterial.current.uniforms.uModel1.value !== model1) {
+          particleShaderMaterial.current.uniforms.uModel1.value = model1
+        }
+        if (particleShaderMaterial.current.uniforms.uModel2.value !== model2) {
+          particleShaderMaterial.current.uniforms.uModel2.value = model2
+        }
+      }
     })
 
     return (
@@ -336,8 +364,8 @@ export const R3FPointsFX = React.forwardRef<
             </bufferGeometry>
             <shaderMaterial
               uniforms={fboShaderUniforms}
-              vertexShader={FBOvert()}
-              fragmentShader={FBOfrag}
+              vertexShader={FBOvert}
+              fragmentShader={FBOfrag(progressModifier)}
             />
           </mesh>,
           scene,

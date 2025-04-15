@@ -21,7 +21,6 @@ uniform float uDpr;
 uniform float uPointSize;
 uniform vec3 uColor;
 uniform float uAlpha;
-uniform float uTransitionProgress;
 uniform int uModel1;
 uniform int uModel2;
 
@@ -36,13 +35,14 @@ struct VertexProperties {
 };
 
 
-${modifierCode ? modifierCode : DEFAULT_MODIFIER_CODE}
+${modifierCode || DEFAULT_MODIFIER_CODE}
 
 
 void main(){
   vec4 textureData = texture2D(uPosition, position.xy);
   vec3 pos = textureData.xyz;
-  VertexProperties res = modifier(pos, textureData.w);
+  float progress = textureData.w;
+  VertexProperties res = modifier(pos, progress);
 
   vec4 modelPosition = modelMatrix * vec4(res.position, 1.0);
   vec4 viewPosition = viewMatrix * modelPosition;

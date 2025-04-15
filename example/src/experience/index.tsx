@@ -6,20 +6,6 @@ import { R3FPointsFX } from 'r3f-points-fx'
 import * as React from 'react'
 import * as THREE from 'three'
 
-const vertexModifier = `
-uniform float uHeight;
-
-VertexProperties modifier(vec3 pos){
-  VertexProperties result;
-  result.position = pos;
-  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-  float scale = uHeight / 2.0;
-  result.pointSize = uPointSize * ( scale / - mvPosition.z);
-
-  return result;
-}
-`
-
 export const Experience = () => {
   return (
     <Canvas>
@@ -64,7 +50,6 @@ export const Custom = () => {
       modelA={null}
       modelB={0}
       models={meshes}
-      vertexModifier={vertexModifier}
       baseColor={new THREE.Color(baseColor)}
       pointSize={size}
     />
