@@ -70,6 +70,20 @@ type R3FPointsFXRefType = {
   setModelB: (index: number) => void
 }
 
+const scene = new THREE.Scene()
+const camera = new THREE.OrthographicCamera(
+    -1,
+    1,
+    1,
+    -1,
+    1 / Math.pow(2, 53),
+    1
+)
+const positions = new Float32Array([
+  -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0,
+])
+const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0])
+
 const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
   (
     {
@@ -151,20 +165,6 @@ const R3FPointsFX = forwardRef<R3FPointsFXRefType, properties>(
     }, [baseColor, modelA, modelB, pointSize, alpha, uniforms])
 
     //Simulation Pass ---------------------------------------------------------------
-    const scene = new THREE.Scene()
-    const camera = new THREE.OrthographicCamera(
-      -1,
-      1,
-      1,
-      -1,
-      1 / Math.pow(2, 53),
-      1
-    )
-    const positions = new Float32Array([
-      -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0,
-    ])
-    const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0])
-
     const renderTarget = useFBO({
       minFilter: THREE.NearestFilter,
       magFilter: THREE.NearestFilter,
