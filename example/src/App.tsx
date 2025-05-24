@@ -15,7 +15,7 @@ function App() {
             <Route path='/' element={<Home />} />
           </Routes>
         </div>
-        <div className='w-full h-full fixed top-0 left-0 -z-10'>
+        <div className='w-full h-full fixed top-0 left-0 z-10'>
           <Experience />
         </div>
         <Leva />

@@ -109,11 +109,12 @@ export const Particles = () => {
   return (
     <R3FPointsFX
       ref={fxRef}
-      scale={[2, 2, 2]}
+      scale={[2.5, 2.5, 2.5]}
+      position={[0, 0, 0]}
       modelA={modelA.current}
       modelB={modelB.current}
       pointsCount={15000}
-      pointSize={0.5}
+      pointSize={0.4}
       organizedParticleIndexes={[0, 1]}
       models={meshes}
       baseColor={new THREE.Color('#fff')}

@@ -137,35 +137,50 @@ export const R3FPointsFX = React.forwardRef<
       [dataTextures],
     )
 
-    const particleShaderMaterial = React.useRef<THREE.ShaderMaterial>(
-      new THREE.ShaderMaterial({
-        uniforms: convertToNativeUniforms({
-          uPosition: null,
-          uColor: baseColor,
-          uTime: 0,
-          uModel1: modelA,
-          uModel2: modelB,
-          uPointSize: pointSize / 10,
-          uAlpha: alpha,
-          uViewPort: new THREE.Vector2(width, height),
-          uDpr: gl.getPixelRatio(),
-          ...uniforms,
-        }),
-        vertexShader: PointsVertexShader(vertexModifier, sizeAttenutation),
-        fragmentShader: PointsFragmentShader(fragmentModifier),
-        depthWrite: false,
-        blending,
-      }),
-    )
+    const particleUniforms = React.useMemo(() => {
+      return convertToNativeUniforms({
+        uPosition: null,
+        uColor: baseColor,
+        uTime: 0,
+        uModel1: modelA,
+        uModel2: modelB,
+        uPointSize: pointSize / 10,
+        uAlpha: alpha,
+        uViewPort: new THREE.Vector2(width, height),
+        uDpr: gl.getPixelRatio(),
+        ...uniforms,
+      })
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // const particleShaderMaterial = React.useRef<THREE.ShaderMaterial>(
+    //   new THREE.ShaderMaterial({
+    //     uniforms: convertToNativeUniforms({
+    //       uPosition: null,
+    //       uColor: baseColor,
+    //       uTime: 0,
+    //       uModel1: modelA,
+    //       uModel2: modelB,
+    //       uPointSize: pointSize / 10,
+    //       uAlpha: alpha,
+    //       uViewPort: new THREE.Vector2(width, height),
+    //       uDpr: gl.getPixelRatio(),
+    //       ...uniforms,
+    //     }),
+    //     vertexShader: PointsVertexShader(vertexModifier, sizeAttenutation),
+    //     fragmentShader: PointsFragmentShader(fragmentModifier),
+    //     depthWrite: false,
+    //     blending,
+    //     transparent: true,
+    //   }),
+    // )
 
     const updateProgress = React.useCallback((progress: number) => {
-      if (fboRef.current) {
-        if (fboRef.current.material instanceof THREE.ShaderMaterial) {
-          fboRef.current.material.uniforms.uTransitionProgress.value = Math.min(
-            progress,
-            1,
-          )
-        }
+      if (fboRef.current?.material instanceof THREE.ShaderMaterial) {
+        fboRef.current.material.uniforms.uTransitionProgress.value = Math.min(
+          progress,
+          1,
+        )
       }
     }, [])
 
@@ -175,13 +190,12 @@ export const R3FPointsFX = React.forwardRef<
         if (index >= 0 && index < dataTextures.length) {
           current = index
         }
-        if (fboRef.current) {
-          if (fboRef.current.material instanceof THREE.ShaderMaterial) {
-            fboRef.current.material.uniforms.positionsA.value =
-              current !== null ? dataTextures[current] : null
 
-            fboRef.current.material.uniforms.uModel1.value = current
-          }
+        if (fboRef.current?.material instanceof THREE.ShaderMaterial) {
+          fboRef.current.material.uniforms.positionsA.value =
+            current !== null ? dataTextures[current] : null
+
+          fboRef.current.material.uniforms.uModel1.value = current
         }
       },
       [dataTextures],
@@ -189,33 +203,48 @@ export const R3FPointsFX = React.forwardRef<
 
     const setModelB = React.useCallback(
       (index: number) => {
-        if (fboRef.current) {
-          let current: number | null = null
-          if (index >= 0 && index < dataTextures.length) {
-            current = index
-          }
+        let current: number | null = null
+        if (index >= 0 && index < dataTextures.length) {
+          current = index
+        }
 
-          if (fboRef.current.material instanceof THREE.ShaderMaterial) {
-            fboRef.current.material.uniforms.positionsB.value =
-              current !== null ? dataTextures[current] : null
+        if (fboRef.current?.material instanceof THREE.ShaderMaterial) {
+          fboRef.current.material.uniforms.positionsB.value =
+            current !== null ? dataTextures[current] : null
 
-            fboRef.current.material.uniforms.uModel2.value = current
-          }
+          fboRef.current.material.uniforms.uModel2.value = current
         }
       },
       [dataTextures],
     )
 
-    React.useEffect(() => {
-      if (!particleShaderMaterial || !particleShaderMaterial.current) return
+    // React.useEffect(() => {
+    //   if (!particleShaderMaterial || !particleShaderMaterial.current) return
 
-      particleShaderMaterial.current.uniforms.uColor.value = baseColor
-      particleShaderMaterial.current.uniforms.uPointSize.value = pointSize / 10
-      particleShaderMaterial.current.uniforms.uAlpha.value = alpha
+    //   particleShaderMaterial.current.uniforms.uColor.value = baseColor
+    //   particleShaderMaterial.current.uniforms.uPointSize.value = pointSize / 10
+    //   particleShaderMaterial.current.uniforms.uAlpha.value = alpha
+
+    //   Object.entries(uniforms).forEach(([key, value]) => {
+    //     if (particleShaderMaterial.current.uniforms[key]) {
+    //       particleShaderMaterial.current.uniforms[key].value = value
+    //     }
+    //   })
+    // }, [baseColor, pointSize, alpha, uniforms])
+
+    // effect for handling uniforms
+    React.useEffect(() => {
+      if (pointsRef.current?.material instanceof THREE.ShaderMaterial) {
+        pointsRef.current.material.uniforms.uColor.value = baseColor
+        pointsRef.current.material.uniforms.uPointSize.value = pointSize / 10
+        pointsRef.current.material.uniforms.uAlpha.value = alpha
+      }
 
       Object.entries(uniforms).forEach(([key, value]) => {
-        if (particleShaderMaterial.current.uniforms[key]) {
-          particleShaderMaterial.current.uniforms[key].value = value
+        if (pointsRef.current?.material instanceof THREE.ShaderMaterial) {
+          if (pointsRef.current.material.uniforms[key]) {
+            pointsRef.current.material.uniforms[key].value = value
+          }
         }
       })
     }, [baseColor, pointSize, alpha, uniforms])
@@ -239,14 +268,13 @@ export const R3FPointsFX = React.forwardRef<
 
     //width, height change in separate effet
     React.useEffect(() => {
-      if (!particleShaderMaterial || !particleShaderMaterial.current) {
-        return
+      if (pointsRef.current?.material instanceof THREE.ShaderMaterial) {
+        ;(
+          pointsRef.current.material.uniforms
+            .uViewPort as THREE.IUniform<THREE.Vector2>
+        ).value.set(width, height)
+        pointsRef.current.material.uniforms.uDpr.value = gl.getPixelRatio()
       }
-
-      ;(
-        particleShaderMaterial.current.uniforms.uViewPort.value as THREE.Vector2
-      ).set(width, height)
-      particleShaderMaterial.current.uniforms.uDpr.value = gl.getPixelRatio()
     }, [width, height, gl])
 
     /**
@@ -299,7 +327,11 @@ export const R3FPointsFX = React.forwardRef<
             }
           }
 
-          particleShaderMaterial.current.uniforms.uTime.value = time
+          if (pointsRef.current) {
+            if (pointsRef.current.material instanceof THREE.ShaderMaterial) {
+              pointsRef.current.material.uniforms.uTime.value = time
+            }
+          }
         },
         setModelA,
         setModelB,
@@ -313,11 +345,15 @@ export const R3FPointsFX = React.forwardRef<
       gl.clear()
       gl.render(scene, camera)
       gl.setRenderTarget(null)
-      particleShaderMaterial.current.uniforms.uPosition.value =
-        renderTarget.texture
+
+      if (pointsRef.current?.material instanceof THREE.ShaderMaterial) {
+        pointsRef.current.material.uniforms.uPosition.value =
+          renderTarget.texture
+      }
+
       if (
-        fboRef.current &&
-        fboRef.current.material instanceof THREE.ShaderMaterial
+        fboRef.current?.material instanceof THREE.ShaderMaterial &&
+        pointsRef.current?.material instanceof THREE.ShaderMaterial
       ) {
         const model1 = fboRef.current.material.uniforms.uModel1.value as
           | number
@@ -326,11 +362,17 @@ export const R3FPointsFX = React.forwardRef<
           | number
           | null
 
-        if (particleShaderMaterial.current.uniforms.uModel1.value !== model1) {
-          particleShaderMaterial.current.uniforms.uModel1.value = model1
+        if (
+          pointsRef.current.material.uniforms.uModel1.value !== model1 &&
+          pointsRef.current.material.uniforms.uModel1.value !== null
+        ) {
+          pointsRef.current.material.uniforms.uModel1.value = model1
         }
-        if (particleShaderMaterial.current.uniforms.uModel2.value !== model2) {
-          particleShaderMaterial.current.uniforms.uModel2.value = model2
+        if (
+          pointsRef.current.material.uniforms.uModel2.value !== model2 &&
+          pointsRef.current.material.uniforms.uModel2.value !== null
+        ) {
+          pointsRef.current.material.uniforms.uModel2.value = model2
         }
       }
     })
@@ -370,11 +412,7 @@ export const R3FPointsFX = React.forwardRef<
           </mesh>,
           scene,
         )}
-        <points
-          {...rest}
-          ref={pointsRef}
-          material={particleShaderMaterial.current}
-        >
+        <points {...rest} ref={pointsRef}>
           <bufferGeometry>
             <bufferAttribute
               attach='attributes-position'
@@ -392,6 +430,14 @@ export const R3FPointsFX = React.forwardRef<
               />
             ))}
           </bufferGeometry>
+          <shaderMaterial
+            uniforms={particleUniforms}
+            vertexShader={PointsVertexShader(vertexModifier, sizeAttenutation)}
+            fragmentShader={PointsFragmentShader(fragmentModifier)}
+            depthWrite={false}
+            blending={blending}
+            transparent
+          />
         </points>
       </>
     )

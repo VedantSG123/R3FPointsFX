@@ -42,6 +42,12 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        shiki: {
+          light: 'var(--shiki-light)',
+          'light-bg': 'var(--shiki-light-bg)',
+          dark: 'var(--shiki-dark)',
+          'dark-bg': 'var(--shiki-dark-bg)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -73,5 +79,5 @@ module.exports = {
     },
   },
   plugins: [tailwindAnimate],
-  darkMode: ['selector', '.dark-theme', 'class'],
+  darkMode: ['selector', '.dark', 'class'],
 }
