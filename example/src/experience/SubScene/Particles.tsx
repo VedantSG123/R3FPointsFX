@@ -11,8 +11,14 @@ import { simplexNoise } from '../shaders/simplexNosie'
 const TRANSITION_DURATION = 2
 const WAIT_DURATION = 2
 
+const ParticleColors = {
+  particleColor1: new THREE.Color('#51a2ff'),
+  particleColor2: new THREE.Color('#9810fa'),
+}
+
 const FragmentModifier = `
-uniform vec3 uColorBlue;
+uniform vec3 uColor1;
+uniform vec3 uColor2;
 
 vec4 modifier(int index){
   vec2 uv = gl_PointCoord;
@@ -20,16 +26,12 @@ vec4 modifier(int index){
   float alpha = 0.05 / distanceFromCenter - (0.05 / 0.5);
   float clampedAlpha = clamp(alpha, 0.0, 1.0);
 
-  vec3 color;
-  if(index == 0){
-    if(vPosition.x > 1.0){
-      color = uColorBlue;
-    }else{
-      color = vec3(0.0, 1.0, 0.0);
-    }
-  } else {
-    color = uColor;
-  }
+  // Calculate gradient factor based on x position (normalized from -1 to 1)
+  float gradientFactor = (vPosition.x + 2.0) * 0.5; // Convert from -1..1 to 0..1
+  gradientFactor = clamp(gradientFactor, 0.0, 1.0); // Ensure it's within 0..1
+  
+  // Mix between the two colors based on x position
+  vec3 color = mix(uColor1, uColor2, gradientFactor);
 
   vec4 result = vec4(color, uAlpha * clampedAlpha);
   return result;
@@ -122,7 +124,8 @@ export const Particles = () => {
       fragmentModifier={FragmentModifier}
       progressModifier={ProgressModifier}
       uniforms={{
-        uColorBlue: new THREE.Color('#7c3aed'),
+        uColor1: ParticleColors.particleColor1,
+        uColor2: ParticleColors.particleColor2,
       }}
     />
   )

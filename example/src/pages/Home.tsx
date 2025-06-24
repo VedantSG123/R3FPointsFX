@@ -1,6 +1,7 @@
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { ChevronRight } from 'lucide-react'
+import { Cpu, Gpu, Zap } from 'lucide-react'
 import * as React from 'react'
 
 import { ScrollBottomAnimation } from '@/components/custom/ScrollButtonAnimation'
@@ -13,10 +14,13 @@ gsap.registerPlugin(ScrollTrigger)
 
 export const Home = () => {
   return (
-    <div className='w-full max-w-7xl mx-auto px-2'>
+    <div className='w-full'>
       <Section1 />
       <Section2 />
       <Section3 />
+      <div className='w-full h-screen bg-gradient-to-t from-transparent via-black/50 to-black/80'></div>
+      <div id='buffer-1' className='w-full h-screen bg-red-100/10'></div>
+      <Section4 />
     </div>
   )
 }
@@ -53,16 +57,19 @@ const Section1 = () => {
   }, [])
 
   return (
-    <section ref={sectionRef} className='pt-24 md:pt-24 min-h-screen relative'>
+    <section
+      ref={sectionRef}
+      className='pt-24 md:pt-24 min-h-screen relative px-2'
+    >
       <div>
         <div className='mb-10 md:text-center px-3 flex flex-col items-center gap-4'>
           <h1 className='text-4xl md:text-5xl leading-tight max-w-[800px] font-bold inline-block'>
             Particle Magic Unleashed with{' '}
-            <span className='bg-gradient-to-r from-[#00ff00] to-[#0000ff] text-transparent bg-clip-text'>
+            <span className='bg-gradient-to-r from-blue-400 to-purple-600 text-transparent bg-clip-text'>
               PointsFX
             </span>
           </h1>
-          <div className='w-full sm:max-w-[280px]'>
+          <div className='w-full sm:max-w-[280px] my-4'>
             <CodeBlock language='shell'>{`npm install r3f-points-fx`}</CodeBlock>
           </div>
         </div>
@@ -72,29 +79,29 @@ const Section1 = () => {
         ref={scrollAnimationRef}
         width={30}
         height={36}
-        className='absolute bottom-32 left-1/2 -translate-x-1/2 z-10'
+        className='absolute bottom-12 left-1/2 -translate-x-1/2 z-10'
       />
+      <div className='absolute -z-[5] inset-0 bg-gradient-to-b from-transparent via-black/50 to-black/80 pointer-events-none' />
     </section>
   )
 }
 
 const Section2 = () => {
   return (
-    <section
-      id='home-section-2'
-      className='pt-20 md:pt-24 h-[400px] relative min-h-screen'
-    >
+    <section id='home-section-2' className='relative min-h-screen'>
       <div>
-        <div className='md:text-center'>
-          <h1 className='text-2xl md:text-3xl leading-tight font-medium max-w-[800px] w-full mx-auto'>
-            Create high-performance, mesh-based particle systems with seamless{' '}
-            <span className='bg-gradient-to-r from-[#00ff00] to-[#0000ff] text-transparent bg-clip-text'>
-              morphing transitions
-            </span>{' '}
-            in <b> React three fiber.</b>
-          </h1>
+        <div className='w-full'>
+          <div className='max-w-6xl w-full mx-auto p-8'>
+            <h1 className='text-4xl md:text-5xl font-bold mt-28'>
+              Create high-performance, mesh-based particle systems with seamless{' '}
+              <span className='bg-gradient-to-r from-blue-400 to-purple-600 text-transparent bg-clip-text'>
+                morphing transitions
+              </span>{' '}
+              in <b> React three fiber.</b>
+            </h1>
+          </div>
         </div>
-        <div className='bg-background/10 backdrop-blur max-w-[800px] w-full mx-auto p-4 rounded-lg absolute left-1/2 -translate-x-1/2 bottom-10 md:bottom-20 text-lg'>
+        <div className='bg-background/10 backdrop-blur max-w-5xl w-full mx-auto p-4 rounded-lg absolute left-1/2 -translate-x-1/2 bottom-10 md:bottom-20 text-xl'>
           <strong>Built for React Three Fiber</strong>
           <p>
             Integrate seamlessly into any R3F project. Just pass an array of
@@ -112,14 +119,86 @@ const Section2 = () => {
           </div>
         </div>
       </div>
+      <div className='absolute -z-[5] inset-0 bg-gradient-to-t from-transparent via-black/50 to-black/80 pointer-events-none' />
     </section>
   )
 }
 
 const Section3 = () => {
   return (
-    <section id='home-section-3' className='relative min-h-screen'>
-      Section 3
+    <section id='home-section-3' className='min-h-screen relative'>
+      <div className='w-full max-w-7xl mx-auto min-h-screen relative'>
+        <div className='mx-auto z-10 max-w-6xl px-4 md:px-8 absolute top-1/2 -translate-y-1/2'>
+          <div>
+            <div className='space-y-6'>
+              <h2 className='text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600'>
+                High Performance, Zero Compromises
+              </h2>
+              <p className='text-lg text-gray-300 max-w-xl'>
+                Experience buttery smooth animations with our optimized
+                rendering engine that handles thousands of particles at 60fps.
+              </p>
+              <div className='space-y-4 mt-8'>
+                <div className='flex items-center space-x-4'>
+                  <div className=''>
+                    <div className='w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center'>
+                      <Zap className='text-blue-400' />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className='font-semibold text-xl text-white'>
+                      Lightning Fast
+                    </h3>
+                    <p className='text-gray-400'>
+                      Optimized WebGL shaders for maximum performance
+                    </p>
+                  </div>
+                </div>
+                <div className='flex items-center space-x-4'>
+                  <div className=''>
+                    <div className='w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center'>
+                      <Gpu className='text-purple-400' />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className='font-semibold text-xl text-white'>
+                      GPU Accelerated
+                    </h3>
+                    <p className='text-gray-400'>
+                      Harness the full power of your graphics card
+                    </p>
+                  </div>
+                </div>
+                <div className='flex items-center space-x-4'>
+                  <div className=''>
+                    <div className='w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center'>
+                      <Cpu className='text-indigo-400' />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className='font-semibold text-xl text-white'>
+                      Massive Scale
+                    </h3>
+                    <p className='text-gray-400'>
+                      Handles thousands of particles while maintaining excellent
+                      performance
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className='absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black/80 pointer-events-none' />
+    </section>
+  )
+}
+
+const Section4 = () => {
+  return (
+    <section id='home-section-4' className='min-h-screen relative'>
+      <div>Section 4</div>
     </section>
   )
 }

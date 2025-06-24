@@ -18,8 +18,8 @@ export const ScrollBottomAnimation = React.forwardRef<
       viewBox='0 0 60 72'
       fill='none'
     >
-      <path className='a1' d='M0 0 L30 32 L60 0' />
-      <path className='a2' d='M0 20 L30 52 L60 20' />
+      <path className='a1 text-indigo-400' d='M0 0 L30 32 L60 0' />
+      <path className='a2 text-purple-600' d='M0 20 L30 52 L60 20' />
       <path className='a3' d='M0 40 L30 72 L60 40' />
     </svg>
   )

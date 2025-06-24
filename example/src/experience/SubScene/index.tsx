@@ -1,4 +1,3 @@
-import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
 import { Camera } from '../Camera'
@@ -22,7 +21,6 @@ const ParticlesScene = () => {
   return (
     <Canvas>
       <Camera />
-      <OrbitControls />
       <Particles />
     </Canvas>
   )

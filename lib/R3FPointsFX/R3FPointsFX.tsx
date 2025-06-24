@@ -437,6 +437,7 @@ export const R3FPointsFX = React.forwardRef<
             depthWrite={false}
             blending={blending}
             transparent
+            vertexColors
           />
         </points>
       </>

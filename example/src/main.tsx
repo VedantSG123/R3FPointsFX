@@ -8,7 +8,7 @@ import { ThemeProvider } from './providers/ThemeProvider.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider storageKey='vite-ui-theme'>
+    <ThemeProvider storageKey='vite-ui-theme' defaultTheme='dark'>
       <App />
     </ThemeProvider>
   </StrictMode>,

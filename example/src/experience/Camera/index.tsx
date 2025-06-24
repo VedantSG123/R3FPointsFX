@@ -33,6 +33,7 @@ export const Camera = () => {
       ref={cameraRef}
       fov={75}
       position={[0, 0, 5]}
+      near={0.0000001}
       makeDefault
     />
   )
