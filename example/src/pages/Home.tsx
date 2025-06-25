@@ -19,7 +19,7 @@ export const Home = () => {
       <Section2 />
       <Section3 />
       <div className='w-full h-screen bg-gradient-to-t from-transparent via-black/50 to-black/80'></div>
-      <div id='buffer-1' className='w-full h-screen bg-red-100/10'></div>
+      <div id='buffer-1' className='w-full h-screen'></div>
       <Section4 />
     </div>
   )
@@ -197,8 +197,9 @@ const Section3 = () => {
 
 const Section4 = () => {
   return (
-    <section id='home-section-4' className='min-h-screen relative'>
-      <div>Section 4</div>
+    <section id='home-section-4' className='relative'>
+      <div className='w-full h-[500px]'></div>
+      <div className='min-h-screen'>Section 4</div>
     </section>
   )
 }

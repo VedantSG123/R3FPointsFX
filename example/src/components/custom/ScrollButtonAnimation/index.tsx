@@ -17,6 +17,7 @@ export const ScrollBottomAnimation = React.forwardRef<
       height={height}
       viewBox='0 0 60 72'
       fill='none'
+      data-speed='0.8'
     >
       <path className='a1 text-indigo-400' d='M0 0 L30 32 L60 0' />
       <path className='a2 text-purple-600' d='M0 20 L30 52 L60 20' />

@@ -2,7 +2,6 @@ import type { ShakeController } from '@react-three/drei'
 import { CameraShake, useGLTF, useTexture } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import GSAP from 'gsap'
-import ScrollTrigger from 'gsap/ScrollTrigger'
 import type { R3FPointsFXRefType } from 'r3f-points-fx'
 import { R3FPointsFX } from 'r3f-points-fx'
 import * as React from 'react'
@@ -10,13 +9,18 @@ import * as THREE from 'three'
 import type { GLTF } from 'three-stdlib'
 
 import { useNormalizedMousePosition } from '../hooks/useNormalizedMousePosition'
+import { simplexNoise } from '../shaders/simplexNosie'
 import { createCircleSpriteTexture } from '../Sprites/Circle'
+import { generateRandomnessArray } from '../utils/generateRandomnessArray'
 import type { LightTrailsRef } from './LightTrails'
 import { LightTrails } from './LightTrails'
 
 const VertexModifier = `
   uniform vec3 uCursor;
+  uniform float uBulgeIntensity;
+  uniform float uRandomMovementIntensity;
   attribute vec3 aColor;
+  attribute vec3 aPositionOffset;
   varying vec3 vColor;
 
   VertexProperties modifier(vec3 pos, float progress){
@@ -27,7 +31,11 @@ const VertexModifier = `
     float distance = length(diff);
     float distTpc = (1. - smoothstep(0.0, 0.75, distance));
 
-    pos.xyz += normalize(vec3(diff, 1.0)) * distTpc * 0.2;
+    pos.xyz += normalize(vec3(diff, 1.0)) * distTpc * uBulgeIntensity;
+
+    pos.x += sin(aPositionOffset.x * uTime) * uRandomMovementIntensity;
+    pos.y += cos(aPositionOffset.y * uTime) * uRandomMovementIntensity;
+    pos.z += sin(aPositionOffset.z * uTime) * uRandomMovementIntensity;
 
     VertexProperties result;
     result.position = pos;
@@ -57,6 +65,29 @@ const FragmentModifier = `
   }
 `
 
+const ProgressModifier = `
+  ${simplexNoise}
+
+  float progressModifier(vec3 origin, vec3 target, float progress){
+    float noiseOrigin = snoise(origin);
+    float noiseTarget = snoise(target);
+    float noise = mix(noiseOrigin, noiseTarget, progress);
+    noise = smoothstep(-1.0, 1.0, noise);
+
+    float duration = 0.1;
+
+    if((uModel1 == 1 && uModel2 == 2) || (uModel1 == 2 && uModel2 == 1)){
+      duration = 0.6;
+    }
+
+    float delay = (1.0 - duration) * noise;
+    float end = delay + duration;
+    float newProgress = smoothstep(delay, end, progress);
+
+    return newProgress;
+  }
+`
+
 const POINTS_COUNT = 15000
 
 const SPHERE = new THREE.Mesh(
@@ -68,8 +99,6 @@ const ParticleColors = {
   particleColor1: new THREE.Color('#51a2ff'),
   particleColor2: new THREE.Color('#9810fa'),
 }
-
-GSAP.registerPlugin(ScrollTrigger)
 
 export const MainScene = () => {
   const circleTexture = createCircleSpriteTexture({
@@ -118,7 +147,11 @@ export const MainScene = () => {
     return colors
   }, [])
 
-  useFrame(() => {
+  const randomPositionOffset = React.useMemo(() => {
+    return generateRandomnessArray(POINTS_COUNT, 2)
+  }, [])
+
+  useFrame(({ clock }) => {
     raycaster.setFromCamera(pointer.current, camera)
 
     const pointsMesh = fxRef.current?.getPointsMesh()
@@ -138,6 +171,8 @@ export const MainScene = () => {
           pointsMesh.material.uniforms.uCursor as THREE.IUniform<THREE.Vector3>
         ).value.set(cursor3D.current.x, cursor3D.current.y, cursor3D.current.z)
       }
+
+      fxRef.current.updateTime(clock.elapsedTime)
     }
   })
 
@@ -156,7 +191,7 @@ export const MainScene = () => {
           onUpdate: (self) => {
             fxRef.current?.updateProgress(self.progress)
             lightTrailsRef.current?.updateOpacity(
-              (Math.max(0, self.progress - 0.7) / 0.3) * 0.5,
+              Math.min(1, self.progress / 0.7) * 0.5,
             )
             // Update shake intensity using the controller
             if (shakeRef.current) {
@@ -201,6 +236,24 @@ export const MainScene = () => {
             if (shakeRef.current) {
               shakeRef.current.setIntensity(self.progress >= 0.3 ? 0 : 1)
             }
+            if (fxRef.current) {
+              const pointsMesh = fxRef.current.getPointsMesh()
+
+              if (
+                pointsMesh &&
+                pointsMesh.material instanceof THREE.ShaderMaterial
+              ) {
+                ;(
+                  pointsMesh.material.uniforms
+                    .uBulgeIntensity as THREE.IUniform<number>
+                ).value = Math.max(0, 1 - self.progress / 0.3) * 0.2
+                ;(
+                  pointsMesh.material.uniforms
+                    .uRandomMovementIntensity as THREE.IUniform<number>
+                ).value =
+                  Math.min(1, Math.max(0, self.progress - 0.3) / 0.7) * 0.015
+              }
+            }
           },
         },
       })
@@ -218,17 +271,11 @@ export const MainScene = () => {
       GSAP.timeline({
         scrollTrigger: {
           trigger: section4,
-          start: 'top bottom',
-          end: 'top top',
+          start: 'top bottom+=500px',
+          end: 'top top+=500px',
           scrub: 1,
           onUpdate: (self) => {
             fxRef.current?.updateProgress(self.progress)
-            lightTrailsRef.current?.updateOpacity(
-              Math.max(0, 1 - self.progress / 0.3) * 0.5,
-            )
-            if (shakeRef.current) {
-              shakeRef.current.setIntensity(self.progress >= 0.3 ? 0 : 1)
-            }
           },
           onEnter: () => {
             fxRef.current?.setModelB(2)
@@ -313,6 +360,7 @@ export const MainScene = () => {
           pointsMesh.position,
           {
             z: 4,
+            y: -0.75,
           },
           0,
         )
@@ -334,6 +382,7 @@ export const MainScene = () => {
           pointsMesh.position,
           {
             z: 1.5,
+            y: -0.25,
           },
           1,
         )
@@ -362,12 +411,19 @@ export const MainScene = () => {
           uCircleMap: circleTexture,
           uBlobMap: starTexture,
           uCursor: new THREE.Vector3(),
+          uBulgeIntensity: 0.2,
+          uRandomMovementIntensity: 0,
         }}
         attributes={[
           {
             array: colors,
             itemSize: 3,
             attach: 'attributes-aColor',
+          },
+          {
+            array: randomPositionOffset,
+            itemSize: 3,
+            attach: 'attributes-aPositionOffset',
           },
         ]}
         modelA={0}
@@ -377,6 +433,7 @@ export const MainScene = () => {
         pointSize={0.2}
         alpha={0.3}
         sizeAttenutation={true}
+        progressModifier={ProgressModifier}
         fragmentModifier={FragmentModifier}
         vertexModifier={VertexModifier}
         organizedParticleIndexes={[1]}
