@@ -1,12 +1,13 @@
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { ChevronRight } from 'lucide-react'
-import { Cpu, Gpu, Zap } from 'lucide-react'
+import { Cpu, Gpu, Link, Zap } from 'lucide-react'
 import * as React from 'react'
 
 import { ScrollBottomAnimation } from '@/components/custom/ScrollButtonAnimation'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/ui/markdown-renderer'
+import { cn } from '@/lib/utils'
 
 import { Subscene } from '../experience/SubScene'
 
@@ -19,8 +20,8 @@ export const Home = () => {
       <Section2 />
       <Section3 />
       <div className='w-full h-screen bg-gradient-to-t from-transparent via-black/50 to-black/80'></div>
-      <div id='buffer-1' className='w-full h-screen'></div>
       <Section4 />
+      <Section5 />
     </div>
   )
 }
@@ -64,10 +65,7 @@ const Section1 = () => {
       <div>
         <div className='mb-10 md:text-center px-3 flex flex-col items-center gap-4'>
           <h1 className='text-4xl md:text-5xl leading-tight max-w-[800px] font-bold inline-block'>
-            Particle Magic Unleashed with{' '}
-            <span className='bg-gradient-to-r from-blue-400 to-purple-600 text-transparent bg-clip-text'>
-              PointsFX
-            </span>
+            Particle Magic Unleashed with <GradientText>PointsFX</GradientText>
           </h1>
           <div className='w-full sm:max-w-[280px] my-4'>
             <CodeBlock language='shell'>{`npm install r3f-points-fx`}</CodeBlock>
@@ -94,10 +92,8 @@ const Section2 = () => {
           <div className='max-w-6xl w-full mx-auto p-8'>
             <h1 className='text-4xl md:text-5xl font-bold mt-28'>
               Create high-performance, mesh-based particle systems with seamless{' '}
-              <span className='bg-gradient-to-r from-blue-400 to-purple-600 text-transparent bg-clip-text'>
-                morphing transitions
-              </span>{' '}
-              in <b> React three fiber.</b>
+              <GradientText>morphing transitions</GradientText> in{' '}
+              <b>React three fiber.</b>
             </h1>
           </div>
         </div>
@@ -131,8 +127,8 @@ const Section3 = () => {
         <div className='mx-auto z-10 max-w-6xl px-4 md:px-8 absolute top-1/2 -translate-y-1/2'>
           <div>
             <div className='space-y-6'>
-              <h2 className='text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600'>
-                High Performance, Zero Compromises
+              <h2 className='text-4xl md:text-5xl font-bold'>
+                <GradientText>High Performance, Zero Compromises</GradientText>
               </h2>
               <p className='text-lg text-gray-300 max-w-xl'>
                 Experience buttery smooth animations with our optimized
@@ -196,10 +192,102 @@ const Section3 = () => {
 }
 
 const Section4 = () => {
+  const pinRef = React.useRef<HTMLDivElement>(null)
+  const sectionRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (!sectionRef || !pinRef) return
+
+    const section = sectionRef.current
+    const pinContent = pinRef.current
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top bottom',
+        end: 'top top',
+        scrub: 1,
+        pin: pinContent,
+        markers: true,
+      },
+    })
+    return () => {
+      tl.kill()
+    }
+  }, [])
+
   return (
-    <section id='home-section-4' className='relative'>
-      <div className='w-full h-[500px]'></div>
-      <div className='min-h-screen'>Section 4</div>
-    </section>
+    <>
+      <div id='buffer-1' className='w-full min-h-screen relative'>
+        <div ref={pinRef} className='w-full'>
+          <div className='max-w-7xl mx-auto md:text-center pt-32 px-4 md:px-8'>
+            <h1 className='text-4xl md:text-5xl font-bold'>
+              Highly <GradientText>Customizable</GradientText>, Endless{' '}
+              <GradientText>Possibilities</GradientText>
+            </h1>
+          </div>
+        </div>
+      </div>
+      <section
+        ref={sectionRef}
+        id='home-section-4'
+        className='relative w-full min-h-screen'
+      >
+        <div className='w-full absolute bottom-12'>
+          <div className='max-w-5xl mx-auto px-4 md:px-8'>
+            <div className='text-xl p-4 rounded-lg bg-background/10 backdrop-blur'>
+              Unleash your creativity with powerful GLSL modifiers. PointsFX
+              allows you to inject custom shader code to control every aspect of
+              your particle system. From particle behavior and color to
+              transition dynamics, you have the ultimate control. During
+              morphing you can even morph between particle shape, color and
+              movement behaviours using the{' '}
+              <a href='#' className='font-bold'>
+                <GradientText className='underline'>
+                  modifier functions{' '}
+                  <Link className='inline-block w-3 h-3 relative bottom-1 text-purple-600' />
+                </GradientText>
+              </a>
+              .
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+
+const Section5 = () => {
+  return (
+    <>
+      <div id='buffer-2' className='w-full min-h-screen relative'></div>
+      <section
+        id='home-section-5'
+        className='relative w-full min-h-screen'
+      ></section>
+    </>
+  )
+}
+
+const GradientText = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) => {
+  const hasUnderline = className?.includes('underline')
+
+  return (
+    <span
+      className={cn(
+        'bg-gradient-to-r from-blue-400 to-purple-600 text-transparent bg-clip-text',
+        hasUnderline &&
+          'relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-gradient-to-r after:from-blue-400 after:to-purple-600',
+        className,
+      )}
+    >
+      {children}
+    </span>
   )
 }

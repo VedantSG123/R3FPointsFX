@@ -296,14 +296,49 @@ export const MainScene = () => {
     return () => ctx.revert()
   }, [])
 
+  // transition 3
+  React.useEffect(() => {
+    const section5 = document.getElementById('home-section-5')
+    if (!section5 || !fxRef.current) return
+
+    const ctx = GSAP.context(() => {
+      GSAP.timeline({
+        scrollTrigger: {
+          trigger: section5,
+          start: 'top bottom',
+          end: 'top top',
+          scrub: 1,
+          onUpdate: (self) => {
+            fxRef.current?.updateProgress(self.progress)
+          },
+          onEnter: () => {
+            fxRef.current?.setModelB(3)
+          },
+          onLeave: () => {
+            fxRef.current?.setModelA(3)
+          },
+          onEnterBack: () => {
+            fxRef.current?.setModelA(2)
+          },
+          onLeaveBack: () => {
+            fxRef.current?.setModelB(2)
+          },
+        },
+      })
+    })
+
+    return () => ctx.revert()
+  }, [])
+
   // movement animations
   React.useEffect(() => {
     const pointsMesh = fxRef.current?.getPointsMesh()
     const section2 = document.getElementById('home-section-2')
     const section3 = document.getElementById('home-section-3')
     const section4 = document.getElementById('home-section-4')
+    const section5 = document.getElementById('home-section-5')
 
-    if (!section2 || !section3 || !section4 || !pointsMesh) return
+    if (!section2 || !section3 || !section4 || !section5 || !pointsMesh) return
 
     const ctx = GSAP.context(() => {
       const timeline1 = GSAP.timeline({
@@ -327,6 +362,15 @@ export const MainScene = () => {
       const timeline3 = GSAP.timeline({
         scrollTrigger: {
           trigger: section4,
+          start: 'top bottom',
+          end: 'top top',
+          scrub: true,
+        },
+      })
+
+      const timeline4 = GSAP.timeline({
+        scrollTrigger: {
+          trigger: section5,
           start: 'top bottom',
           end: 'top top',
           scrub: true,
@@ -385,6 +429,22 @@ export const MainScene = () => {
             y: -0.25,
           },
           1,
+        )
+
+      timeline4
+        .to(
+          pointsMesh.position,
+          {
+            z: 2,
+          },
+          0,
+        )
+        .to(
+          pointsMesh.rotation,
+          {
+            z: Math.PI * 0.25,
+          },
+          0,
         )
     })
 
