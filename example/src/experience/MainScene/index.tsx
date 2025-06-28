@@ -1,12 +1,15 @@
 import type { ShakeController } from '@react-three/drei'
 import { CameraShake, useGLTF, useTexture } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import GSAP from 'gsap'
+import { gsap } from 'gsap'
 import type { R3FPointsFXRefType } from 'r3f-points-fx'
 import { R3FPointsFX } from 'r3f-points-fx'
 import * as React from 'react'
 import * as THREE from 'three'
 import type { GLTF } from 'three-stdlib'
+
+import { useCustomEventListener } from '@/hooks/useCustomEvents'
+import type { ArrangeMode } from '@/types'
 
 import { useNormalizedMousePosition } from '../hooks/useNormalizedMousePosition'
 import { simplexNoise } from '../shaders/simplexNosie'
@@ -50,14 +53,19 @@ const VertexModifier = `
 
 const FragmentModifier = `
   uniform sampler2D uCircleMap;
-  uniform sampler2D uBlobMap;
+  uniform sampler2D uJellyfishMap;
+  uniform sampler2D uHeartMap;
   varying vec3 vColor;
 
   vec4 modifier(int index){
     float alpha = texture2D(uCircleMap, gl_PointCoord).a;
 
     if(index == 2){
-      alpha = texture2D(uBlobMap, gl_PointCoord).a * 2.0;
+      alpha = texture2D(uJellyfishMap, gl_PointCoord).a * 2.0;
+    }
+
+    if(index == 3 || index == 4){
+      alpha = texture2D(uHeartMap, gl_PointCoord).a * 2.0;
     }
 
     vec4 result = vec4(vColor, uAlpha * alpha);
@@ -90,6 +98,14 @@ const ProgressModifier = `
 
 const POINTS_COUNT = 15000
 
+const MOUSE_BULGE_INTENSITY = 0.2
+const RANDOM_MOVEMENT_INTENSITY = 0.015
+
+const ARRANGE_MODES: Record<ArrangeMode, number> = {
+  vertex: 3,
+  random: 4,
+} as const
+
 const SPHERE = new THREE.Mesh(
   new THREE.SphereGeometry(1.5, 32, 16),
   new THREE.MeshBasicMaterial(),
@@ -106,8 +122,8 @@ export const MainScene = () => {
     color: '#ffffff',
   })
 
-  const starTexture = useTexture('jellyfish_glow.png')
-  starTexture.rotation = Math.PI / 2
+  const jellyfishTexture = useTexture('jellyfish_glow.png')
+  const heartTexture = useTexture('heart.png')
 
   const {
     nodes: { Rocket },
@@ -125,6 +141,12 @@ export const MainScene = () => {
   const fxRef = React.useRef<R3FPointsFXRefType>(null)
   const lightTrailsRef = React.useRef<LightTrailsRef>(null)
   const shakeRef = React.useRef<ShakeController>(null)
+  const lastGeometryIndexRef = React.useRef<number>(3)
+  const modeChangeModelA = React.useRef<number>(3)
+  const modeChangeModelB = React.useRef<number>(3)
+  const modeChangeProgressRef = React.useRef<number>(1)
+  const animationRef = React.useRef<gsap.core.Tween | null>(null)
+  const pointsGroupRef = React.useRef<THREE.Group | null>(null)
 
   const plane = React.useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0))
   const cursor3D = React.useRef(new THREE.Vector3())
@@ -176,13 +198,73 @@ export const MainScene = () => {
     }
   })
 
+  useCustomEventListener<ArrangeMode>('mode-change', (mode) => {
+    if (ARRANGE_MODES[mode] === lastGeometryIndexRef.current) return
+
+    if (fxRef.current) {
+      lastGeometryIndexRef.current = ARRANGE_MODES[mode]
+
+      if (animationRef.current) {
+        animationRef.current.kill()
+      }
+
+      // previous animation in completed
+      if (modeChangeProgressRef.current === 1) {
+        modeChangeModelB.current = lastGeometryIndexRef.current
+
+        fxRef.current.setModelB(modeChangeModelB.current)
+        modeChangeProgressRef.current = 0
+
+        animationRef.current = gsap.to(modeChangeProgressRef, {
+          current: 1,
+          duration: 4,
+          ease: 'none',
+          onUpdate: () => {
+            fxRef.current?.updateProgress(modeChangeProgressRef.current)
+          },
+          onComplete: () => {
+            modeChangeModelA.current = modeChangeModelB.current
+            fxRef.current?.setModelA(modeChangeModelA.current)
+          },
+        })
+      } else {
+        // we are in the middle of the transition
+        if (modeChangeModelB.current !== lastGeometryIndexRef.current) {
+          modeChangeModelA.current = modeChangeModelB.current
+          modeChangeModelB.current = lastGeometryIndexRef.current
+          modeChangeProgressRef.current = 1 - modeChangeProgressRef.current
+
+          fxRef.current?.setModelA(modeChangeModelA.current)
+          fxRef.current?.setModelB(modeChangeModelB.current)
+          fxRef.current?.updateProgress(modeChangeProgressRef.current)
+
+          animationRef.current = gsap.to(modeChangeProgressRef, {
+            current: 1,
+            duration: 4,
+            ease: 'none',
+            onUpdate: () => {
+              fxRef.current?.updateProgress(modeChangeProgressRef.current)
+            },
+            onComplete: () => {
+              modeChangeModelA.current = modeChangeModelB.current
+              fxRef.current?.setModelA(modeChangeModelA.current)
+            },
+            paused: true,
+          })
+
+          animationRef.current.progress(modeChangeProgressRef.current).play()
+        }
+      }
+    }
+  })
+
   //transition 1
   React.useEffect(() => {
     const section3 = document.getElementById('home-section-3')
     if (!section3 || !fxRef.current) return
 
-    const ctx = GSAP.context(() => {
-      GSAP.timeline({
+    const ctx = gsap.context(() => {
+      gsap.timeline({
         scrollTrigger: {
           trigger: section3,
           start: 'top bottom',
@@ -222,8 +304,8 @@ export const MainScene = () => {
     const buffer1 = document.getElementById('buffer-1')
     if (!buffer1 || !lightTrailsRef.current) return
 
-    const ctx = GSAP.context(() => {
-      GSAP.timeline({
+    const ctx = gsap.context(() => {
+      gsap.timeline({
         scrollTrigger: {
           trigger: buffer1,
           start: 'top bottom',
@@ -246,12 +328,14 @@ export const MainScene = () => {
                 ;(
                   pointsMesh.material.uniforms
                     .uBulgeIntensity as THREE.IUniform<number>
-                ).value = Math.max(0, 1 - self.progress / 0.3) * 0.2
+                ).value =
+                  Math.max(0, 1 - self.progress / 0.3) * MOUSE_BULGE_INTENSITY
                 ;(
                   pointsMesh.material.uniforms
                     .uRandomMovementIntensity as THREE.IUniform<number>
                 ).value =
-                  Math.min(1, Math.max(0, self.progress - 0.3) / 0.7) * 0.015
+                  Math.min(1, Math.max(0, self.progress - 0.3) / 0.7) *
+                  RANDOM_MOVEMENT_INTENSITY
               }
             }
           },
@@ -267,8 +351,8 @@ export const MainScene = () => {
     const section4 = document.getElementById('home-section-4')
     if (!section4 || !fxRef.current) return
 
-    const ctx = GSAP.context(() => {
-      GSAP.timeline({
+    const ctx = gsap.context(() => {
+      gsap.timeline({
         scrollTrigger: {
           trigger: section4,
           start: 'top bottom+=500px',
@@ -296,15 +380,50 @@ export const MainScene = () => {
     return () => ctx.revert()
   }, [])
 
-  // transition 3
+  // buffer-2 stop random movement of particles
   React.useEffect(() => {
-    const section5 = document.getElementById('home-section-5')
-    if (!section5 || !fxRef.current) return
+    const buffer2 = document.getElementById('buffer-2')
+    if (!buffer2 || !fxRef.current) return
 
-    const ctx = GSAP.context(() => {
-      GSAP.timeline({
+    const ctx = gsap.context(() => {
+      gsap.timeline({
         scrollTrigger: {
-          trigger: section5,
+          trigger: buffer2,
+          start: 'top bottom',
+          end: 'top top',
+          scrub: 1,
+          onUpdate: (self) => {
+            if (fxRef.current) {
+              const pointsMesh = fxRef.current.getPointsMesh()
+              if (
+                pointsMesh &&
+                pointsMesh.material instanceof THREE.ShaderMaterial
+              ) {
+                ;(
+                  pointsMesh.material.uniforms
+                    .uRandomMovementIntensity as THREE.IUniform<number>
+                ).value =
+                  Math.max(0, 1 - self.progress / 0.5) *
+                  RANDOM_MOVEMENT_INTENSITY
+              }
+            }
+          },
+        },
+      })
+    })
+
+    return () => ctx.revert()
+  }, [])
+
+  // transition 3 with buffer 3
+  React.useEffect(() => {
+    const buffer3 = document.getElementById('buffer-3')
+    if (!buffer3 || !fxRef.current) return
+
+    const ctx = gsap.context(() => {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: buffer3,
           start: 'top bottom',
           end: 'top top',
           scrub: 1,
@@ -312,13 +431,16 @@ export const MainScene = () => {
             fxRef.current?.updateProgress(self.progress)
           },
           onEnter: () => {
-            fxRef.current?.setModelB(3)
+            fxRef.current?.setModelB(lastGeometryIndexRef.current)
           },
           onLeave: () => {
-            fxRef.current?.setModelA(3)
+            fxRef.current?.setModelA(lastGeometryIndexRef.current)
           },
           onEnterBack: () => {
             fxRef.current?.setModelA(2)
+            if (animationRef.current) {
+              animationRef.current.kill()
+            }
           },
           onLeaveBack: () => {
             fxRef.current?.setModelB(2)
@@ -333,15 +455,26 @@ export const MainScene = () => {
   // movement animations
   React.useEffect(() => {
     const pointsMesh = fxRef.current?.getPointsMesh()
+    const pointsGroup = pointsGroupRef.current
     const section2 = document.getElementById('home-section-2')
     const section3 = document.getElementById('home-section-3')
     const section4 = document.getElementById('home-section-4')
+    const buffer3 = document.getElementById('buffer-3')
     const section5 = document.getElementById('home-section-5')
 
-    if (!section2 || !section3 || !section4 || !section5 || !pointsMesh) return
+    if (
+      !section2 ||
+      !section3 ||
+      !section4 ||
+      !buffer3 ||
+      !section5 ||
+      !pointsMesh ||
+      !pointsGroup
+    )
+      return
 
-    const ctx = GSAP.context(() => {
-      const timeline1 = GSAP.timeline({
+    const ctx = gsap.context(() => {
+      const timeline1 = gsap.timeline({
         scrollTrigger: {
           trigger: section2,
           start: 'top bottom',
@@ -350,7 +483,7 @@ export const MainScene = () => {
         },
       })
 
-      const timeline2 = GSAP.timeline({
+      const timeline2 = gsap.timeline({
         scrollTrigger: {
           trigger: section3,
           start: 'top bottom',
@@ -359,7 +492,7 @@ export const MainScene = () => {
         },
       })
 
-      const timeline3 = GSAP.timeline({
+      const timeline3 = gsap.timeline({
         scrollTrigger: {
           trigger: section4,
           start: 'top bottom',
@@ -368,7 +501,16 @@ export const MainScene = () => {
         },
       })
 
-      const timeline4 = GSAP.timeline({
+      const timeline4 = gsap.timeline({
+        scrollTrigger: {
+          trigger: buffer3,
+          start: 'top bottom',
+          end: 'top top',
+          scrub: true,
+        },
+      })
+
+      const timeline5 = gsap.timeline({
         scrollTrigger: {
           trigger: section5,
           start: 'top bottom',
@@ -440,9 +582,25 @@ export const MainScene = () => {
           0,
         )
         .to(
+          pointsGroup.rotation,
+          {
+            z: Math.PI * 0.2,
+          },
+          0,
+        )
+
+      timeline5
+        .to(
+          pointsMesh.position,
+          {
+            z: 4,
+          },
+          0,
+        )
+        .to(
           pointsMesh.rotation,
           {
-            z: Math.PI * 0.25,
+            y: Math.PI * 3.5,
           },
           0,
         )
@@ -463,42 +621,43 @@ export const MainScene = () => {
         pitchFrequency={8}
         rollFrequency={8}
       />
-
-      <R3FPointsFX
-        position={[0, 0, 6]}
-        ref={fxRef}
-        uniforms={{
-          uCircleMap: circleTexture,
-          uBlobMap: starTexture,
-          uCursor: new THREE.Vector3(),
-          uBulgeIntensity: 0.2,
-          uRandomMovementIntensity: 0,
-        }}
-        attributes={[
-          {
-            array: colors,
-            itemSize: 3,
-            attach: 'attributes-aColor',
-          },
-          {
-            array: randomPositionOffset,
-            itemSize: 3,
-            attach: 'attributes-aPositionOffset',
-          },
-        ]}
-        modelA={0}
-        modelB={0}
-        models={[SPHERE, Rocket, Jellyfish, Dna]}
-        pointsCount={POINTS_COUNT}
-        pointSize={0.2}
-        alpha={0.3}
-        sizeAttenutation={true}
-        progressModifier={ProgressModifier}
-        fragmentModifier={FragmentModifier}
-        vertexModifier={VertexModifier}
-        organizedParticleIndexes={[1]}
-      />
-
+      <group ref={pointsGroupRef}>
+        <R3FPointsFX
+          position={[0, 0, 6]}
+          ref={fxRef}
+          uniforms={{
+            uCircleMap: circleTexture,
+            uJellyfishMap: jellyfishTexture,
+            uHeartMap: heartTexture,
+            uCursor: new THREE.Vector3(),
+            uBulgeIntensity: MOUSE_BULGE_INTENSITY,
+            uRandomMovementIntensity: RANDOM_MOVEMENT_INTENSITY,
+          }}
+          attributes={[
+            {
+              array: colors,
+              itemSize: 3,
+              attach: 'attributes-aColor',
+            },
+            {
+              array: randomPositionOffset,
+              itemSize: 3,
+              attach: 'attributes-aPositionOffset',
+            },
+          ]}
+          modelA={0}
+          modelB={0}
+          models={[SPHERE, Rocket, Jellyfish, Dna, Dna]}
+          pointsCount={POINTS_COUNT}
+          pointSize={0.2}
+          alpha={0.3}
+          sizeAttenutation={true}
+          progressModifier={ProgressModifier}
+          fragmentModifier={FragmentModifier}
+          vertexModifier={VertexModifier}
+          organizedParticleIndexes={[1, 3]}
+        />
+      </group>
       <LightTrails
         ref={lightTrailsRef}
         trailCount={100}

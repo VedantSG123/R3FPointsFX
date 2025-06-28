@@ -5,9 +5,18 @@ import { Cpu, Gpu, Link, Zap } from 'lucide-react'
 import * as React from 'react'
 
 import { ScrollBottomAnimation } from '@/components/custom/ScrollButtonAnimation'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { CodeBlock } from '@/components/ui/markdown-renderer'
+import { useCustomEventDispatch } from '@/hooks/useCustomEvents'
 import { cn } from '@/lib/utils'
+import type { ArrangeMode } from '@/types'
 
 import { Subscene } from '../experience/SubScene'
 
@@ -22,6 +31,7 @@ export const Home = () => {
       <div className='w-full h-screen bg-gradient-to-t from-transparent via-black/50 to-black/80'></div>
       <Section4 />
       <Section5 />
+      <Section6 />
     </div>
   )
 }
@@ -77,7 +87,7 @@ const Section1 = () => {
         ref={scrollAnimationRef}
         width={30}
         height={36}
-        className='absolute bottom-12 left-1/2 -translate-x-1/2 z-10'
+        className='absolute -bottom-12 left-1/2 -translate-x-1/2 z-10'
       />
       <div className='absolute -z-[5] inset-0 bg-gradient-to-b from-transparent via-black/50 to-black/80 pointer-events-none' />
     </section>
@@ -208,7 +218,6 @@ const Section4 = () => {
         end: 'top top',
         scrub: 1,
         pin: pinContent,
-        markers: true,
       },
     })
     return () => {
@@ -258,14 +267,231 @@ const Section4 = () => {
 }
 
 const Section5 = () => {
+  const [selectedMode, setSelectedMode] = React.useState<ArrangeMode>('vertex')
+  const dispatch = useCustomEventDispatch<ArrangeMode>('mode-change')
+
+  const handleModeChange = (mode: ArrangeMode) => {
+    setSelectedMode(mode)
+    dispatch(mode)
+  }
+
   return (
     <>
       <div id='buffer-2' className='w-full min-h-screen relative'></div>
-      <section
-        id='home-section-5'
-        className='relative w-full min-h-screen'
-      ></section>
+      <div id='buffer-3' className='w-full min-h-screen relative'></div>
+      <section id='home-section-5' className='relative w-full min-h-screen'>
+        <div className='w-full max-w-7xl mx-auto px-4 md:px-8 pt-32'>
+          <div className='text-center mb-16'>
+            <h1 className='text-4xl md:text-5xl font-bold mb-6'>
+              Two Powerful <GradientText>Arrangement Modes</GradientText>
+            </h1>
+          </div>
+        </div>
+        <div className='w-full absolute bottom-36'>
+          <div className='max-w-7xl mx-auto px-4 md:px-8'>
+            {/* Mobile Accordion View */}
+            <div className='md:hidden'>
+              <Accordion type='single' collapsible className='space-y-0'>
+                <AccordionItem
+                  value='vertex'
+                  className={`bg-background/10 backdrop-blur rounded-lg border-2 ${
+                    selectedMode === 'vertex'
+                      ? 'border-blue-500/50 bg-blue-500/5'
+                      : 'border-transparent'
+                  }`}
+                >
+                  <AccordionTrigger className='px-6 py-4 text-left hover:no-underline'>
+                    <div className='flex items-center gap-2'>
+                      <Checkbox
+                        checked={selectedMode === 'vertex'}
+                        onCheckedChange={() => handleModeChange('vertex')}
+                        className='w-4 h-4'
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <span className='text-xl font-semibold'>
+                        Vertex Based Mode
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className='px-6 pb-6'>
+                    <div className='space-y-3 text-gray-300'>
+                      <p>
+                        Perfect for scenarios where you need precise control
+                        over particle positioning and smooth morphing between
+                        different mesh shapes.
+                      </p>
+                      <ul className='text-sm space-y-1 list-disc list-inside'>
+                        <li>Particles match vertex positions exactly</li>
+                        <li>
+                          Particles count{' '}
+                          <span className='font-bold'>
+                            cannot be greater than the vertex count
+                          </span>{' '}
+                          in the geometry
+                        </li>
+                        <li>Ideal for geometric morphing</li>
+                        <li>Predictable particle behavior</li>
+                      </ul>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem
+                  value='random'
+                  className={`bg-background/10 backdrop-blur rounded-lg border-2 ${
+                    selectedMode === 'random'
+                      ? 'border-purple-500/50 bg-purple-500/5'
+                      : 'border-transparent'
+                  }`}
+                >
+                  <AccordionTrigger className='px-6 py-4 text-left hover:no-underline'>
+                    <div className='flex items-center gap-2'>
+                      <Checkbox
+                        checked={selectedMode === 'random'}
+                        onCheckedChange={() => handleModeChange('random')}
+                        className='w-4 h-4'
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <span className='text-xl font-semibold'>
+                        Random Surface Mode
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className='px-6 pb-6'>
+                    <div className='space-y-3 text-gray-300'>
+                      <p>
+                        Great for creating organic, natural-looking particle
+                        effects with unlimited particle counts and creative
+                        freedom.
+                      </p>
+                      <ul className='text-sm space-y-1 list-disc list-inside'>
+                        <li>Random distribution on mesh surface</li>
+                        <li>
+                          Particles are{' '}
+                          <span className='font-bold'>not limited</span> by mesh
+                          vertex count
+                        </li>
+                        <li>Perfect for organic effects</li>
+                        <li>Creative particle placement</li>
+                      </ul>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+
+            {/* Desktop Grid View */}
+            <div className='hidden md:grid md:grid-cols-2 gap-8'>
+              <div
+                className={`bg-background/10 backdrop-blur rounded-lg p-6 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 border-2 ${
+                  selectedMode === 'vertex'
+                    ? 'border-blue-500/50 bg-blue-500/5'
+                    : 'border-transparent hover:border-blue-500/30'
+                }`}
+                onClick={() => handleModeChange('vertex')}
+              >
+                <h3 className='text-xl font-semibold mb-4 flex items-center gap-2'>
+                  <Checkbox
+                    checked={selectedMode === 'vertex'}
+                    onCheckedChange={() => handleModeChange('vertex')}
+                    className='w-4 h-4'
+                  />
+                  Vertex Based Mode
+                </h3>
+                <div className='space-y-3 text-gray-300'>
+                  <p>
+                    Perfect for scenarios where you need precise control over
+                    particle positioning and smooth morphing between different
+                    mesh shapes.
+                  </p>
+
+                  <ul className='text-sm space-y-1 list-disc list-inside'>
+                    <li>Particles match vertex positions exactly</li>
+                    <li>
+                      Particles count{' '}
+                      <span className='font-bold'>
+                        cannot be greater than the vertex count
+                      </span>{' '}
+                      in the geometry
+                    </li>
+                    <li>Ideal for geometric morphing</li>
+                    <li>Predictable particle behavior</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div
+                className={`bg-background/10 backdrop-blur rounded-lg p-6 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 border-2 ${
+                  selectedMode === 'random'
+                    ? 'border-purple-500/50 bg-purple-500/5'
+                    : 'border-transparent hover:border-purple-500/30'
+                }`}
+                onClick={() => handleModeChange('random')}
+              >
+                <h3 className='text-xl font-semibold mb-4 flex items-center gap-2'>
+                  <Checkbox
+                    checked={selectedMode === 'random'}
+                    onCheckedChange={() => handleModeChange('random')}
+                    className='w-4 h-4'
+                  />
+                  Random Surface Mode
+                </h3>
+                <div className='space-y-3 text-gray-300'>
+                  <p>
+                    Great for creating organic, natural-looking particle effects
+                    with unlimited particle counts and creative freedom.
+                  </p>
+
+                  <ul className='text-sm space-y-1 list-disc list-inside'>
+                    <li>Random distribution on mesh surface</li>
+                    <li>
+                      Particles are{' '}
+                      <span className='font-bold'>not limited</span> by mesh
+                      vertex count
+                    </li>
+                    <li>Perfect for organic effects</li>
+                    <li>Creative particle placement</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
+  )
+}
+
+const Section6 = () => {
+  return (
+    <section className='w-full'>
+      <div className='w-full max-w-7xl mx-auto px-4 md:px-8'>
+        {/* Call to Action */}
+        <div className='text-center mt-16'>
+          <div className='bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-t-2xl p-8 border border-blue-500/20'>
+            <h3 className='text-2xl font-bold mb-4'>
+              Ready to <GradientText>Transform</GradientText> Your Projects?
+            </h3>
+            <p className='text-gray-300 mb-6 max-w-2xl mx-auto'>
+              Start building stunning particle effects with PointsFX. Choose
+              your arrangement mode, customize your particles, and create
+              mesmerizing visual experiences.
+            </p>
+            <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+              <Button
+                size='lg'
+                className='bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
+              >
+                Get Started Now
+              </Button>
+              <Button size='lg' variant='outline'>
+                View Documentation
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
