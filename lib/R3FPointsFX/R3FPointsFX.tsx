@@ -17,12 +17,10 @@ import { PointsFragmentShader } from './shaders/PointsFragmentShader'
 import { PointsVertexShader } from './shaders/PointsVertexShader'
 
 type uniforms = {
-  [name: string]: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  | Array<any>
-    | Float32Array
-    | Int32Array
+  [name: string]:
     | THREE.Color
     | THREE.CubeTexture
+    | THREE.DataTexture
     | THREE.Matrix3
     | THREE.Matrix4
     | THREE.Quaternion
@@ -42,21 +40,78 @@ type attribute = {
 }
 
 export type R3FPointsPropsType = PointsProps & {
+  /**
+   * An array of THREE.Mesh objects to be used as models for the particle system.
+   */
   models: THREE.Mesh[]
+  /**
+   * The number of points (particles) to be rendered.
+   * @default 1000
+   */
   pointsCount?: number
+  /**
+   * The index of the model in the `models` array to be used as the starting model (modelA).
+   * @default null
+   */
   modelA?: number | null
+  /**
+   * The index of the model in the `models` array to be used as the ending model (modelB).
+   * @default null
+   */
   modelB?: number | null
+  /**
+   * An object of uniforms to be passed to the shaders.
+   * @default {}
+   */
   uniforms?: uniforms
+  /**
+   * The base color of the particles.
+   * @default new THREE.Color(0, 0, 0)
+   */
   baseColor?: THREE.Color
+  /**
+   * The size of the particles.
+   * @default 0.1
+   */
   pointSize?: number
+  /**
+   * The alpha (transparency) of the particles.
+   * @default 1
+   */
   alpha?: number
+  /**
+   * An array of custom attributes to be passed to the shaders.
+   */
   attributes?: attribute[]
+  /**
+   * The blending mode to be used for the particles.
+   * @default THREE.AdditiveBlending
+   */
   blending?: THREE.Blending
+  /**
+   * A string of GLSL code to be injected into the vertex shader.
+   */
   vertexModifier?: string
+  /**
+   * A string of GLSL code to be injected into the fragment shader.
+   */
   fragmentModifier?: string
+  /**
+   * A string of GLSL code to be injected into the FBO fragment shader to modify the transition progress.
+   */
   progressModifier?: string
+  /**
+   * The progress of the transition between modelA and modelB.
+   */
   progress?: number
+  /**
+   * Whether the particle size should be attenuated by the distance from the camera.
+   * @default true
+   */
   sizeAttenutation?: boolean
+  /**
+   * An array of indexes of models that should have their particles arranged in an organized manner.
+   */
   organizedParticleIndexes?: number[]
 }
 

@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 
 import { AppHeader } from './components/AppHeader'
 import { Experience } from './experience'
+import Docs from './pages/Docs.mdx'
 import { Home } from './pages/Home'
 
 GSAP.registerPlugin(ScrollSmoother, ScrollTrigger)
@@ -32,6 +33,7 @@ function App() {
           <div id='smooth-content'>
             <Routes>
               <Route path='/' element={<Home />} />
+              <Route path='/docs' element={<Docs />} />
             </Routes>
           </div>
         </div>

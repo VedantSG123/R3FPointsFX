@@ -1,0 +1,176 @@
+# R3FPointsFX Documentation
+
+This is the documentation for the `r3f-points-fx` library.
+
+## Installation
+
+```bash
+npm install r3f-points-fx
+```
+
+## `R3FPointsFX` Component
+
+The `R3FPointsFX` component is the core of this library. It allows you to create a particle system that can transition between different 3D models.
+
+### Props
+
+#### `models`
+
+-   Type: `THREE.Mesh[]`
+-   Required
+
+An array of `THREE.Mesh` objects to be used as models for the particle system.
+
+#### `pointsCount`
+
+-   Type: `number`
+-   Default: `1000`
+
+The number of points (particles) to be rendered.
+
+#### `modelA`
+
+-   Type: `number | null`
+-   Default: `null`
+
+The index of the model in the `models` array to be used as the starting model (modelA).
+
+#### `modelB`
+
+-   Type: `number | null`
+-   Default: `null`
+
+The index of the model in the `models` array to be used as the ending model (modelB).
+
+#### `uniforms`
+
+-   Type: `object`
+-   Default: `{}`
+
+An object of uniforms to be passed to the shaders.
+
+#### `baseColor`
+
+-   Type: `THREE.Color`
+-   Default: `new THREE.Color(0, 0, 0)`
+
+The base color of the particles.
+
+#### `pointSize`
+
+-   Type: `number`
+-   Default: `0.1`
+
+The size of the particles.
+
+#### `alpha`
+
+-   Type: `number`
+-   Default: `1`
+
+The alpha (transparency) of the particles.
+
+#### `attributes`
+
+-   Type: `attribute[]`
+
+An array of custom attributes to be passed to the shaders.
+
+#### `blending`
+
+-   Type: `THREE.Blending`
+-   Default: `THREE.AdditiveBlending`
+
+The blending mode to be used for the particles.
+
+#### `vertexModifier`
+
+-   Type: `string`
+
+A string of GLSL code to be injected into the vertex shader.
+
+#### `fragmentModifier`
+
+-   Type: `string`
+
+A string of GLSL code to be injected into the fragment shader.
+
+#### `progressModifier`
+
+-   Type: `string`
+
+A string of GLSL code to be injected into the FBO fragment shader to modify the transition progress.
+
+#### `progress`
+
+-   Type: `number`
+
+The progress of the transition between modelA and modelB.
+
+#### `sizeAttenutation`
+
+-   Type: `boolean`
+-   Default: `true`
+
+Whether the particle size should be attenuated by the distance from the camera.
+
+#### `organizedParticleIndexes`
+
+-   Type: `number[]`
+
+An array of indexes of models that should have their particles arranged in an organized manner.
+
+### Ref
+
+The `R3FPointsFX` component also exposes a ref with the following methods:
+
+#### `getSimulationMesh()`
+
+-   Returns: `THREE.Mesh | null`
+
+Returns the mesh used for the FBO simulation.
+
+#### `getPointsMesh()`
+
+-   Returns: `THREE.Points | null`
+
+Returns the points mesh that is rendered to the screen.
+
+#### `updateProgress(progress: number)`
+
+Updates the progress of the transition between `modelA` and `modelB`.
+
+#### `updateTime(time: number)`
+
+Updates the `uTime` uniform in the shaders.
+
+#### `setModelA(index: number)`
+
+Sets the `modelA` to the model at the given index in the `models` array.
+
+#### `setModelB(index: number)`
+
+Sets the `modelB` to the model at the given index in the `models` array.
+
+### Example Usage
+
+```jsx
+import { R3FPointsFX } from 'r3f-points-fx'
+import * as THREE from 'three'
+
+const MyScene = () => {
+  const models = [
+    new THREE.Mesh(new THREE.BoxGeometry()),
+    new THREE.Mesh(new THREE.SphereGeometry()),
+  ]
+
+  return (
+    <R3FPointsFX
+      models={models}
+      modelA={0}
+      modelB={1}
+      progress={0.5}
+    />
+  )
+}
+```
