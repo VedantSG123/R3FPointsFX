@@ -1,0 +1,128 @@
+# Introduction
+
+R3FPointsFX is a powerful, flexible React component designed for rendering high-performance, customizable particle effects in 3D scenes using [React Three Fiber](https://r3f.docs.pmnd.rs/). Built with creative and interactive web experiences in mind, R3FPointsFX bridges the gap between ease of use and advanced shader-driven visual effects — allowing both rapid prototyping and precise, production-ready control.
+
+\
+With a single, declarative component, you can:
+
+- Animate thousands of particles with smooth transitions between different shapes or models.
+- Inject custom GLSL shaders for unique vertex and fragment effects.
+- Tweak colors, attributes, and uniforms to fit your creative vision.
+- Leverage efficient GPU-driven animation for complex visuals without sacrificing performance.
+
+\
+Whether you're building data-driven visualizations, interactive art, science demos, or playful web interfaces, **R3FPointsFX** helps you achieve stunning, high-FPS visuals — all within the React paradigm.
+
+# Features
+
+- **Imperative Ref Control**: Access transitions and particle mesh directly via a ref, no React re-renders needed.
+
+- **Flexible Particle Generation**: Sample particles from any mesh surface, independent of original vertex count, or use exact mesh vertices when desired.
+
+- **Easy Customization**: Modify appearance, transitions, and motion with **modifier functions**, pass your own custom shader uniforms, and attributes.
+
+# Quick Start
+
+Install using npm:
+
+```bash
+npm i r3f-points-fx
+```
+
+Basic usage, a transition cycle, duration 2 seconds, wait for 2 seconds after a transition:
+
+```tsx
+import { useGLTF } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import type { R3FPointsFXRefType } from 'r3f-points-fx'
+import { R3FPointsFX } from 'r3f-points-fx'
+import * as React from 'react'
+import * as THREE from 'three'
+import type { GLTF } from 'three-stdlib'
+
+const TRANSITION_DURATION = 2
+const WAIT_DURATION = 2
+
+const SPHERE = new THREE.Mesh(
+  new THREE.SphereGeometry(1.5, 32, 16),
+  new THREE.MeshBasicMaterial(),
+)
+
+export const Particles = () => {
+  // example of with loading gltf models
+  const { nodes } = useGLTF('suzanne.glb') as GLTFResult
+
+  const fxRef = React.useRef<R3FPointsFXRefType>(null)
+  const start = React.useRef(0)
+  const modelA = React.useRef(0)
+  const modelB = React.useRef(1)
+
+  const meshes = [nodes.Suzanne, SPHERE]
+
+  // Ensure the update progress is called exactly once per frame
+  // or transition will glitch.
+  useFrame(({ clock }) => {
+    if (start.current === 0) {
+      start.current = clock.elapsedTime
+    }
+
+    const elapsed = clock.elapsedTime - start.current
+
+    const progress = Math.min(
+      Math.max(0, (elapsed - WAIT_DURATION) / TRANSITION_DURATION),
+      1,
+    )
+
+    if (progress >= 1) {
+      modelA.current = modelB.current
+      modelB.current = (modelB.current + 1) % meshes.length
+
+      fxRef.current?.setModelA(modelA.current)
+      fxRef.current?.updateProgress(0)
+      fxRef.current?.setModelB(modelB.current)
+      start.current = 0
+    } else {
+      fxRef.current?.updateProgress(progress)
+    }
+  })
+
+  return (
+    <R3FPointsFX
+      ref={fxRef}
+      scale={[2.5, 2.5, 2.5]}
+      position={[0, 0, 0]}
+      modelA={modelA.current} // set value initally, later control using ref
+      modelB={modelB.current}
+      pointsCount={15000}
+      pointSize={0.4}
+      organizedParticleIndexes={[0]} // particles will arrange at exact vertex positions for suzanne mesh
+      models={meshes}
+      baseColor={new THREE.Color('#fff')}
+      sizeAttenutation={true}
+    />
+  )
+}
+
+type GLTFResult = GLTF & {
+  nodes: {
+    Suzanne: THREE.Mesh
+  }
+  materials: object
+}
+```
+
+# API Reference
+
+Methods exposed by the `ref`:
+
+| Method | Usage | Returns |
+| --- | --- | --- |
+| `setModelA(modelIndex: number)` | `pointsRef.current.setModelA(index:number \| null)` | void |
+| `setModelB(modelIndex: number)` | `pointsRef.current.setModelA(index:number \| null)`  | void |
+| `updateProgress(progress: number)` | `pointsRef.current.updateProgress(progress:number)` | void |
+| `updateTime(time: number)` | `pointsRef.current.updateTime(time:number)` | void |
+| `getPointsMesh()` | `pointsRef.current.getPointsMesh()` | `THREE.Points` |
+| `getSimulationMesh()` | `pointsRef.current.getSimulationMesh()` | `THREE.Mesh` |
+
+> [!IMPORTANT]
+> The `updateTime` method is exposed so that the user updates the `uTime` (already declared) uniform in the shader. This uniform is not automatically updated by the component, as it is not being used in the defualt shader code. If you decide to use it inside your modifier functions, you will need to call this method to update the time value.

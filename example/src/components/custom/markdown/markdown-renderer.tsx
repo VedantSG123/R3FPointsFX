@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm'
 import type { ThemedToken } from 'shiki'
 import { bundledLanguages, codeToTokens } from 'shiki'
 
-import { CopyButton } from '@/components/ui/copy-button'
+import { CopyButton } from '@/components/custom/markdown/copy-button'
 import { cn } from '@/lib/utils'
 
 interface MarkdownRendererProps {
@@ -21,8 +21,8 @@ export function MarkdownRenderer({ children }: MarkdownRendererProps) {
   )
 }
 
-const HighlightedPre = React.memo(
-  ({ children, language, ...props }: HighlightedPre) => {
+export const HighlightedCode = React.memo(
+  ({ children, language, className, ...props }: HighlightedCode) => {
     const [tokens, setTokens] = React.useState<ThemedToken[][]>([])
     const [loading, setLoading] = React.useState(true)
 
@@ -59,12 +59,24 @@ const HighlightedPre = React.memo(
     }, [children, language])
 
     if (loading || !(language in bundledLanguages)) {
-      return <pre {...props}>{children}</pre>
+      return (
+        <div className='bg-primary-foreground rounded-sm py-[2px] px-1 inline-block'>
+          <code {...props} className={cn('font-mono', className)}>
+            {children}
+          </code>
+        </div>
+      )
     }
 
     return (
-      <pre {...props}>
-        <code>
+      <div className='bg-primary-foreground rounded-sm py-[2px] px-1 inline-block'>
+        <code
+          {...props}
+          className={cn(
+            'font-mono bg-primary-foreground rounded-md',
+            className,
+          )}
+        >
           {tokens.map((line, lineIndex) => (
             <span key={lineIndex}>
               {line.map((token, tokenIndex) => (
@@ -84,20 +96,18 @@ const HighlightedPre = React.memo(
             </span>
           ))}
         </code>
-      </pre>
+      </div>
     )
   },
 )
-HighlightedPre.displayName = 'HighlightedCode'
 
-interface CodeBlockProps extends React.HTMLAttributes<HTMLPreElement> {
-  language: string
+type CodeBlockProps = React.HTMLAttributes<HTMLPreElement> & {
+  language?: string
 }
 
 export const CodeBlock = ({
   children,
   className,
-  language,
   ...restProps
 }: CodeBlockProps) => {
   const code =
@@ -106,15 +116,15 @@ export const CodeBlock = ({
       : childrenTakeAllStringContents(children)
 
   const preClass = cn(
-    'overflow-x-scroll w-full text-left p-4 rounded-md bg-background border font-mono text-sm [scrollbar-width:none]',
+    'overflow-x-scroll w-full text-left p-4 rounded-md bg-primary-foreground border text-sm [scrollbar-width:none]',
     className,
   )
 
   return (
-    <div className='group/code relative mb-4 w-full'>
-      <HighlightedPre {...restProps} language={language} className={preClass}>
-        {code}
-      </HighlightedPre>
+    <div className='group/code relative my-4 w-full'>
+      <pre className={preClass} {...restProps}>
+        {children}
+      </pre>
 
       <div className='absolute right-2 top-[10px] flex space-x-1 rounded-lg p-1 transition-all duration-200 visible opacity-100'>
         <CopyButton content={code} copyMessage='Copied code to clipboard' />
@@ -219,7 +229,7 @@ function withClass<Tag extends keyof JSX.IntrinsicElements>(
   return Component
 }
 
-interface HighlightedPre extends React.HTMLAttributes<HTMLPreElement> {
+interface HighlightedCode extends React.HTMLAttributes<HTMLElement> {
   children: string
   language: string
 }

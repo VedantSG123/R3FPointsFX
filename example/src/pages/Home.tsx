@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react'
 import { Cpu, Gpu, Link, Zap } from 'lucide-react'
 import * as React from 'react'
 
+import { CodeBlock } from '@/components/custom/markdown/markdown-renderer'
 import { ScrollBottomAnimation } from '@/components/custom/ScrollButtonAnimation'
 import {
   Accordion,
@@ -13,7 +14,6 @@ import {
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { CodeBlock } from '@/components/ui/markdown-renderer'
 import { useCustomEventDispatch } from '@/hooks/useCustomEvents'
 import { cn } from '@/lib/utils'
 import type { ArrangeMode } from '@/types'
