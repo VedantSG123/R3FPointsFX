@@ -33,7 +33,7 @@ type uniforms = {
     | null
 }
 
-type attribute = {
+export type attribute = {
   attach: string
   array: THREE.TypedArray
   itemSize: number

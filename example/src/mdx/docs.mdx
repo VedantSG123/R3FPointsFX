@@ -113,7 +113,7 @@ type GLTFResult = GLTF & {
 
 # API Reference
 
-Methods exposed by the `ref`:
+## Methods exposed by the `ref`:
 
 | Method | Usage | Returns |
 | --- | --- | --- |
@@ -126,3 +126,25 @@ Methods exposed by the `ref`:
 
 > [!IMPORTANT]
 > The `updateTime` method is exposed so that the user updates the `uTime` (already declared) uniform in the shader. This uniform is not automatically updated by the component, as it is not being used in the defualt shader code. If you decide to use it inside your modifier functions, you will need to call this method to update the time value.
+
+## Props
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| models* | `THREE.Mesh[]` | -  | Array of meshes to sample particles from |
+| pointsCount | `number` | `10000` | Number of particles to render |
+| modelA | `number \| null` | `null` | Index of the model to use as first model for particle transition, nothing will be visible if value is `null` |
+| modelB | `number \| null` | `null` | Index of the model to use as second model for particle transition, nothing will be visible if value is `null` |
+| pointSize | `number` | `0.1` | Size of each particle |
+| baseColor | `THREE.Color` | `new THREE.Color('#fff')` | Base color applied to all the particles, you can customize colors by passing your own color uniforms and a fragment modifier function |
+| alpha | `number` | `1` | Opacity applied to all the particles. (Can be customized per particle by using fragment modifier function) |
+| sizeAttenutation | `boolean` | `true` | Whether to apply size attenuation to particles, making them appear smaller with distance from the camera |
+| blending | `THREE.Blending` | `THREE.AdditiveBlending` | Blending mode for the particles |
+| organizedParticleIndexes | `number[]` | `[]` | Array of indexes of particles that will be arranged at exact vertex positions of the mesh, should be used for meshes having vertex count less than or equal to the `pointsCount` |
+| uniforms |  `Record<string, validUniformType>`  | `undefiend` | The custom uniforms which you can pass additionally, declare and use them in the modifier functions |
+| attributes | `attribute[]` | `undefined` | The custom attributes which you can pass additionally, declare and use them in the **vertex modifier function** |
+| vertexModifier | `string` | `undefiend` | Vertex modifer function |
+| fragmentModifier | `string` | `undefiend` | Fragment modifer function |
+| progressModifer | `string` | `undefined` | Progress modifier function, used to modify the transition progress between modelA and modelB |
+
+> [!IMPORTANT]
+> Apart from the above props, all the props accepted by the `<points>` component in react three fiber can be passed, like `position`, `rotation`, `scale`, etc. These props will be applied to the `THREE.Points` mesh created.
