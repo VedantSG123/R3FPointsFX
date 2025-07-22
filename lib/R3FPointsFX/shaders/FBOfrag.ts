@@ -5,6 +5,7 @@ const DEFAULT_PROGRESS_MODIFIER = `
 `
 
 export const FBOfrag = (progressModifier?: string) => `
+  uniform float uTime;
   uniform float uTransitionProgress;
   uniform sampler2D positionsA;
   uniform sampler2D positionsB;

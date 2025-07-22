@@ -9,12 +9,15 @@ import {
   CodeBlock,
   HighlightedCode,
 } from '@/components/custom/markdown/markdown-renderer'
+import { ResponsiveImage } from '@/components/custom/ResponsiveImage'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 const components: Readonly<MDXComponents> = {
   table: ({ children, ...rest }) => (
-    <div className='table-wrapper'>
+    <ScrollArea className='w-full'>
       <table {...rest}>{children}</table>
-    </div>
+      <ScrollBar orientation='horizontal' />
+    </ScrollArea>
   ),
   code: ({ children, className, ...props }) => {
     const language = className?.replace(/language-/, '') || 'text'
@@ -34,6 +37,15 @@ const components: Readonly<MDXComponents> = {
   blockquote: ({ children, ...props }) => (
     <CustomBlockquote {...props}>{children}</CustomBlockquote>
   ),
+  img: (props) => {
+    return (
+      <div className='w-full py-4'>
+        <ResponsiveImage className='rounded-lg overflow-clip'>
+          <img {...props} />
+        </ResponsiveImage>
+      </div>
+    )
+  },
 }
 
 export const MDXCustomProvider: React.FC<MDXCustomProviderType> = ({

@@ -8,6 +8,7 @@ export default function Docs() {
       <MDXCustomProvider>
         <DocsPage />
       </MDXCustomProvider>
+      <div className='h-12 w-full'></div>
     </PageScrollContainer>
   )
 }

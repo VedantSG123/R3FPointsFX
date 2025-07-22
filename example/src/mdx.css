@@ -4,7 +4,7 @@
   }
 
   color: hsl(var(--foreground));
-  font-size: 15px;
+  font-size: 16px;
 
   /* List styles */
   ul,
@@ -37,21 +37,21 @@
   }
 
   h1 {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   h2 {
-    font-size: 19px;
+    font-size: 21px;
   }
 
   h3 {
-    font-size: 17px;
+    font-size: 19px;
   }
 
   h4,
   h5,
   h6 {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   h1,
@@ -142,6 +142,7 @@
 
   .table-wrapper {
     overflow-x: auto;
+    width: 100%;
     margin-top: 1rem;
     margin-bottom: 1rem;
   }
@@ -205,7 +206,7 @@
     font-weight: 500;
     &:hover {
       color: hsl(var(--primary-hover));
-      text-decoration: none;
+      text-decoration: underline;
     }
   }
 }

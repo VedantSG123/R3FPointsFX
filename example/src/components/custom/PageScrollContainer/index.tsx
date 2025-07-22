@@ -6,7 +6,7 @@ export const PageScrollContainer: React.FC<PageScrollContainerType> = ({
   children,
 }) => {
   return (
-    <ScrollArea className='h-screen w-full overflow-y-auto'>
+    <ScrollArea className='h-screen overflow-y-auto [&>div>div]:!block'>
       {children}
     </ScrollArea>
   )

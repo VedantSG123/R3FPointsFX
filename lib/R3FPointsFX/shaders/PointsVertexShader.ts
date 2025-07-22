@@ -19,8 +19,6 @@ uniform float uTime;
 uniform vec2 uViewPort;
 uniform float uDpr;
 uniform float uPointSize;
-uniform vec3 uColor;
-uniform float uAlpha;
 uniform int uModel1;
 uniform int uModel2;
 
