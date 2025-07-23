@@ -11,6 +11,7 @@ import {
 } from '@/components/custom/markdown/markdown-renderer'
 import { ResponsiveImage } from '@/components/custom/ResponsiveImage'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import ExamplesSandpack from '@/sandpacks/ExamplesSandpack'
 
 const components: Readonly<MDXComponents> = {
   table: ({ children, ...rest }) => (
@@ -46,6 +47,7 @@ const components: Readonly<MDXComponents> = {
       </div>
     )
   },
+  ExamplesSandpack,
 }
 
 export const MDXCustomProvider: React.FC<MDXCustomProviderType> = ({

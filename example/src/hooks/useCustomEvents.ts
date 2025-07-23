@@ -38,6 +38,7 @@ export const useCustomEventListener = <T>(
 
 export const Events = {
   MODE_CHANGE: 'mode-change',
+  SANDPACK_FULLSSCREEN: 'sandpack-fullscreen',
 } as const
 
 export type Event = (typeof Events)[keyof typeof Events]
