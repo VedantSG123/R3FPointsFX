@@ -2,11 +2,15 @@ import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Bloom, EffectComposer, ToneMapping } from '@react-three/postprocessing'
 import { BlendFunction, ToneMappingMode } from 'postprocessing'
+import { useLocation } from 'react-router'
 
 import { Camera } from './Camera'
 import { MainScene } from './MainScene'
 
 export const Experience = () => {
+  const location = useLocation()
+  const isHomePage = location.pathname === '/'
+
   return (
     <Canvas id='main-canvas'>
       <OrbitControls />
@@ -22,7 +26,9 @@ export const Experience = () => {
         />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       </EffectComposer>
-      <MainScene />
+      <group visible={isHomePage}>
+        <MainScene />
+      </group>
     </Canvas>
   )
 }
