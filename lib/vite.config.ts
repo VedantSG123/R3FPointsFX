@@ -15,6 +15,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'main.ts'),
       formats: ['es', 'cjs'],
+      fileName: 'main',
     },
     copyPublicDir: false,
     rollupOptions: {
@@ -23,6 +24,8 @@ export default defineConfig({
         '@react-three/fiber',
         'react',
         'react-dom',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
         'three',
       ],
     },
