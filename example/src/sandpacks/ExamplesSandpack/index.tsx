@@ -6,10 +6,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useGPUTier } from '@/hooks/useGPUTier'
 
 import BasicFiles from './basic'
+import ColorMixFiles from './colorMix'
 
 const commonCSS = `
   html {
-    background: #20222B;
+    background: #000000;
   }
 
   canvas {
@@ -20,6 +21,7 @@ const commonCSS = `
 
 const SCENES = {
   scene1: BasicFiles,
+  scene2: ColorMixFiles,
 }
 
 const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
@@ -40,7 +42,7 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
             three: '^0.171.0',
             '@react-three/drei': '^9.120.4',
             '@react-three/fiber': '^8.17.10',
-            'r3f-points-fx': '1.0.5-beta.0',
+            'r3f-points-fx': '1.0.5-beta.2',
           }}
           files={{
             ...SCENES[scene],

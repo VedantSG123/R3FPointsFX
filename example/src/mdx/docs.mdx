@@ -32,32 +32,37 @@ npm i r3f-points-fx
 Basic usage, a transition cycle, duration 2 seconds, wait for 2 seconds after a transition:
 
 ```tsx
-import { useGLTF } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
-import type { R3FPointsFXRefType } from 'r3f-points-fx'
-import { R3FPointsFX } from 'r3f-points-fx'
-import * as React from 'react'
-import * as THREE from 'three'
-import type { GLTF } from 'three-stdlib'
+import * as THREE from 'three';
+import * as React from 'react';
+import { Canvas, useFrame } from "@react-three/fiber";
+import { R3FPointsFX } from 'r3f-points-fx';
+import { OrbitControls } from "@react-three/drei";
+import { useGLTF } from '@react-three/drei';
+import type { GLTF } from 'three-stdlib';
+import type { R3FPointsFXRefType } from 'r3f-points-fx';
+import "./styles.css";
 
 const TRANSITION_DURATION = 2
 const WAIT_DURATION = 2
 
 const SPHERE = new THREE.Mesh(
-  new THREE.SphereGeometry(1.5, 32, 16),
+  new THREE.SphereGeometry(1.1, 32, 16),
   new THREE.MeshBasicMaterial(),
 )
 
-export const Particles = () => {
-  // example of with loading gltf models
-  const { nodes } = useGLTF('suzanne.glb') as GLTFResult
+const COLORS = {
+  base: new THREE.Color('#9333ea'),
+}
 
+const Model = () => {
+  const { nodes } = useGLTF('suzanne.glb') as unknown as SuzanneGLTFResult
+  const { nodes: threejsNodes } = useGLTF('threejs.glb') as unknown as ThreejsGLTFResult
   const fxRef = React.useRef<R3FPointsFXRefType>(null)
   const start = React.useRef(0)
   const modelA = React.useRef(0)
   const modelB = React.useRef(1)
 
-  const meshes = [nodes.Suzanne, SPHERE]
+  const meshes = [nodes.Suzanne, threejsNodes.threejs, SPHERE]
 
   // Ensure the update progress is called exactly once per frame
   // or transition will glitch.
@@ -94,24 +99,48 @@ export const Particles = () => {
       modelA={modelA.current} // set value initally, later control using ref
       modelB={modelB.current}
       pointsCount={15000}
-      pointSize={0.4}
+      pointSize={0.2}
       organizedParticleIndexes={[0]} // particles will arrange at exact vertex positions for suzanne mesh
       models={meshes}
-      baseColor={new THREE.Color('#fff')}
+      baseColor={COLORS.base}
       sizeAttenutation={true}
+      alpha={0.5}
     />
   )
-}
+};
 
-type GLTFResult = GLTF & {
+const Scene = () => {
+  return (
+    <Canvas camera={{ position: [0, 0, 5] }}>
+      <Model />
+      <OrbitControls />
+    </Canvas>
+  );
+};
+
+type SuzanneGLTFResult = GLTF & {
   nodes: {
     Suzanne: THREE.Mesh
   }
   materials: object
 }
-```
 
+
+type ThreejsGLTFResult = GLTF & {
+  nodes: {
+    threejs: THREE.Mesh
+  }
+  materials: object
+}
+
+
+export default Scene;
+```
+### Basic Example
 <ExamplesSandpack scene='scene1' />
+
+### Advance Example (modifier code modifying colors and shapes of particles)
+<ExamplesSandpack scene='scene2' />
 
 # API Reference
 
