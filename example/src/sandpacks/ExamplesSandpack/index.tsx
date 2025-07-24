@@ -5,6 +5,23 @@ import { BaseSandpack } from '@/components/custom/sandpack/BaseSandpack'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useGPUTier } from '@/hooks/useGPUTier'
 
+import BasicFiles from './basic'
+
+const commonCSS = `
+  html {
+    background: #20222B;
+  }
+
+  canvas {
+    width: 100vw;
+    height: 100vh;
+  }
+`
+
+const SCENES = {
+  scene1: BasicFiles,
+}
+
 const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
   const [ref, inView] = useInView()
   const { tier, loading: tierLoading } = useGPUTier()
@@ -14,7 +31,25 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
   return (
     <div ref={ref}>
       {inView && !tierLoading ? (
-        <BaseSandpack template={'react-ts'} autorun={autorun} />
+        <BaseSandpack
+          template={'react-ts'}
+          autorun={autorun}
+          dependencies={{
+            react: '^18.2.0',
+            'react-dom': '^18.2.0',
+            three: '^0.171.0',
+            '@react-three/drei': '^9.120.4',
+            '@react-three/fiber': '^8.17.10',
+            'r3f-points-fx': '1.0.5-beta.0',
+          }}
+          files={{
+            ...SCENES[scene],
+            '/scene.css': {
+              code: commonCSS,
+              hidden: true,
+            },
+          }}
+        />
       ) : (
         <Skeleton className='h-[400px] w-full' />
       )}
@@ -23,7 +58,7 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
 }
 
 type ExamplesSandpackProps = {
-  scene?: string
+  scene: keyof typeof SCENES
 }
 
 export default ExamplesSandpack
