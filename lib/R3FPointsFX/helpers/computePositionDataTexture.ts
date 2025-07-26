@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js'
+import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js'
 
 const surfaceSampler = (count: number, mesh: THREE.Mesh) => {
   const length = count * 4
