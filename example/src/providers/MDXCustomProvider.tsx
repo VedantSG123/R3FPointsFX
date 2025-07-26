@@ -13,6 +13,10 @@ import { ResponsiveImage } from '@/components/custom/ResponsiveImage'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import ExamplesSandpack from '@/sandpacks/ExamplesSandpack'
 
+const VerticalSpacer = ({ height }: { height: number }) => (
+  <div style={{ height }} className={`w-full`} />
+)
+
 const components: Readonly<MDXComponents> = {
   table: ({ children, ...rest }) => (
     <ScrollArea className='w-full'>
@@ -48,6 +52,7 @@ const components: Readonly<MDXComponents> = {
     )
   },
   ExamplesSandpack,
+  VerticalSpacer,
 }
 
 export const MDXCustomProvider: React.FC<MDXCustomProviderType> = ({

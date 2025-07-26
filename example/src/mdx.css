@@ -1,8 +1,4 @@
 .mdx-wrapper {
-  :first-child {
-    margin-top: 0;
-  }
-
   color: hsl(var(--foreground));
   font-size: 16px;
 
@@ -139,6 +135,11 @@
     border: none;
     border-top: 1px solid var(--border);
     margin: 2rem 0;
+  }
+
+  p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
   }
 
   .table-wrapper {

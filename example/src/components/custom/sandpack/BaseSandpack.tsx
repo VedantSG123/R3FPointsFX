@@ -64,6 +64,7 @@ export const BaseSandpack: React.FC<BaseSandpackProps> = ({
   autorun = false,
   files = {},
   dependencies = {},
+  sandboxHeight = DEFAULT_EDITOR_OPTIONS.editorHeight,
 }) => {
   const isMobile = useIsMobile()
   const [activeView, setActiveView] = React.useState<activeView>('preview')
@@ -89,9 +90,9 @@ export const BaseSandpack: React.FC<BaseSandpackProps> = ({
   return (
     <div
       className={cn(
-        'w-full [&_.sp-layout]:rounded-lg [&_.cm-gutterElement]:text-[12px] [&_.cm-gutterElement]:select-none',
+        'w-full [&_.sp-layout]:rounded-lg [&_.cm-gutterElement]:text-[12px] [&_.cm-gutterElement]:select-none my-4',
         isFullscreen &&
-          'h-screen w-screen fixed top-0 left-0 right-0 bottom-0 z-[60]',
+          'h-screen w-screen fixed top-0 left-0 right-0 bottom-0 z-[60] my-0',
         isMobile && '[.sp-layout]:flex-col',
       )}
     >
@@ -120,9 +121,7 @@ export const BaseSandpack: React.FC<BaseSandpackProps> = ({
               showRefreshButton={false}
               showOpenInCodeSandbox={false}
               style={{
-                height: isFullscreen
-                  ? '100dvh'
-                  : DEFAULT_EDITOR_OPTIONS.editorHeight - 50,
+                height: isFullscreen ? '100dvh' : sandboxHeight - 50,
                 display: activeView === 'preview' ? 'flex' : 'none',
               }}
             />
@@ -130,9 +129,7 @@ export const BaseSandpack: React.FC<BaseSandpackProps> = ({
               key={consoleKey}
               showHeader
               style={{
-                height: isFullscreen
-                  ? '100dvh'
-                  : DEFAULT_EDITOR_OPTIONS.editorHeight - 50,
+                height: isFullscreen ? '100dvh' : sandboxHeight - 50,
                 display: activeView === 'console' ? 'flex' : 'none',
               }}
             />
@@ -142,9 +139,7 @@ export const BaseSandpack: React.FC<BaseSandpackProps> = ({
             showRunButton={false}
             style={{
               borderLeft: '1px solid hsl(var(--border))',
-              height: isFullscreen
-                ? '100dvh'
-                : DEFAULT_EDITOR_OPTIONS.editorHeight,
+              height: isFullscreen ? '100dvh' : sandboxHeight,
             }}
           />
         </SandpackLayout>
@@ -158,4 +153,5 @@ type BaseSandpackProps = {
   autorun?: boolean
   files?: Record<string, SandpackFile>
   dependencies?: Record<string, string>
+  sandboxHeight?: number
 }

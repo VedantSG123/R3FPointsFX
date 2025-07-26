@@ -8,6 +8,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { AppHeader } from './components/AppHeader'
 import { Experience } from './experience'
 import Docs from './pages/Docs'
+import Examples from './pages/Examples'
 import { Home } from './pages/Home'
 
 GSAP.registerPlugin(ScrollSmoother, ScrollTrigger)
@@ -34,6 +35,7 @@ function App() {
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/docs' element={<Docs />} />
+              <Route path='/examples' element={<Examples />} />
             </Routes>
           </div>
         </div>

@@ -29,7 +29,9 @@ export const AppHeader = () => {
             <Button variant='ghost' asChild>
               <Link to='/'>Home</Link>
             </Button>
-            <Button variant='ghost'>Examples</Button>
+            <Button variant='ghost'>
+              <Link to='/examples'>Examples</Link>
+            </Button>
             <Button variant='ghost' asChild>
               <Link to='/docs'>Docs</Link>
             </Button>

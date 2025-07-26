@@ -24,7 +24,10 @@ const SCENES = {
   scene2: ColorMixFiles,
 }
 
-const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
+const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({
+  scene,
+  height,
+}) => {
   const [ref, inView] = useInView()
   const { tier, loading: tierLoading } = useGPUTier()
 
@@ -51,9 +54,15 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
               hidden: true,
             },
           }}
+          sandboxHeight={height}
         />
       ) : (
-        <Skeleton className='h-[400px] w-full' />
+        <Skeleton
+          style={{
+            height: height || 500,
+          }}
+          className='w-full'
+        />
       )}
     </div>
   )
@@ -61,6 +70,7 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({ scene }) => {
 
 type ExamplesSandpackProps = {
   scene: keyof typeof SCENES
+  height?: number
 }
 
 export default ExamplesSandpack
