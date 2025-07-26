@@ -1,7 +1,7 @@
 import { useFBO } from '@react-three/drei'
 import {
   createPortal,
-  type PointsProps,
+  type ThreeElements,
   useFrame,
   useThree,
 } from '@react-three/fiber'
@@ -39,7 +39,7 @@ export type attribute = {
   itemSize: number
 }
 
-export type R3FPointsPropsType = PointsProps & {
+export type R3FPointsPropsType = ThreeElements['points'] & {
   /**
    * An array of THREE.Mesh objects to be used as models for the particle system.
    */
@@ -101,10 +101,6 @@ export type R3FPointsPropsType = PointsProps & {
    */
   progressModifier?: string
   /**
-   * The progress of the transition between modelA and modelB.
-   */
-  progress?: number
-  /**
    * Whether the particle size should be attenuated by the distance from the camera.
    * @default true
    */
@@ -143,7 +139,6 @@ export const R3FPointsFX = React.forwardRef<
       vertexModifier,
       fragmentModifier,
       progressModifier,
-      progress,
       sizeAttenutation = true,
       organizedParticleIndexes = [],
       ...rest
@@ -152,6 +147,13 @@ export const R3FPointsFX = React.forwardRef<
   ) => {
     const fboRef = React.useRef<THREE.Mesh>(null)
     const pointsRef = React.useRef<THREE.Points>(null)
+    const modelARef = React.useRef<number | null>(modelA)
+    const modelBRef = React.useRef<number | null>(modelB)
+
+    const fboScene = React.useRef(new THREE.Scene())
+    const fboCamera = React.useRef(
+      new THREE.OrthographicCamera(-1, 1, 1, -1, 1 / Math.pow(2, 53), 1),
+    )
 
     const {
       gl,
@@ -176,19 +178,21 @@ export const R3FPointsFX = React.forwardRef<
       })
 
       return result
-    }, [models, count, organizedParticleIndexes])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [models, count])
 
     const fboShaderUniforms = React.useMemo(
       () =>
         convertToNativeUniforms({
           uTransitionProgress: 0,
           uTime: 0,
-          positionsA: modelA !== null ? dataTextures[modelA] : null,
-          positionsB: modelB !== null ? dataTextures[modelB] : null,
-          uModel1: modelA,
-          uModel2: modelB,
+          positionsA:
+            modelARef.current !== null ? dataTextures[modelARef.current] : null,
+          positionsB:
+            modelBRef.current !== null ? dataTextures[modelBRef.current] : null,
+          uModel1: modelARef.current,
+          uModel2: modelBRef.current,
         }),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       [dataTextures],
     )
 
@@ -197,8 +201,8 @@ export const R3FPointsFX = React.forwardRef<
         uPosition: null,
         uColor: baseColor,
         uTime: 0,
-        uModel1: modelA,
-        uModel2: modelB,
+        uModel1: modelARef.current,
+        uModel2: modelBRef.current,
         uPointSize: pointSize / 10,
         uAlpha: alpha,
         uViewPort: new THREE.Vector2(width, height),
@@ -222,6 +226,7 @@ export const R3FPointsFX = React.forwardRef<
         let current: number | null = null
         if (index >= 0 && index < dataTextures.length) {
           current = index
+          modelARef.current = current
         }
 
         if (fboRef.current?.material instanceof THREE.ShaderMaterial) {
@@ -239,6 +244,7 @@ export const R3FPointsFX = React.forwardRef<
         let current: number | null = null
         if (index >= 0 && index < dataTextures.length) {
           current = index
+          modelBRef.current = current
         }
 
         if (fboRef.current?.material instanceof THREE.ShaderMaterial) {
@@ -268,23 +274,6 @@ export const R3FPointsFX = React.forwardRef<
       })
     }, [baseColor, pointSize, alpha, uniforms])
 
-    // effect for updating progress
-    React.useEffect(() => {
-      if (progress) {
-        updateProgress(progress)
-      }
-    }, [progress, updateProgress])
-
-    // effect for updating models
-    React.useEffect(() => {
-      if (modelA !== null) {
-        setModelA(modelA)
-      }
-      if (modelB !== null) {
-        setModelB(modelB)
-      }
-    }, [modelA, modelB, setModelA, setModelB])
-
     //width, height change in separate effet
     React.useEffect(() => {
       if (pointsRef.current?.material instanceof THREE.ShaderMaterial) {
@@ -296,24 +285,15 @@ export const R3FPointsFX = React.forwardRef<
       }
     }, [width, height, gl])
 
-    /**
-     * ---------------- Simulation Pass --------------
-     */
-    const scene = new THREE.Scene()
-    const camera = new THREE.OrthographicCamera(
-      -1,
-      1,
-      1,
-      -1,
-      1 / Math.pow(2, 53),
-      1,
-    )
-    const positions = new Float32Array([
-      -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0,
-    ])
-    const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0])
+    const fboGeometryProperties = React.useMemo(() => {
+      const positions = new Float32Array([
+        -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0,
+      ])
+      const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0])
+      return { positions, uvs }
+    }, [])
 
-    const renderTarget = useFBO({
+    const renderTarget = useFBO(Math.sqrt(count), Math.sqrt(count), {
       minFilter: THREE.NearestFilter,
       magFilter: THREE.NearestFilter,
       type: THREE.FloatType,
@@ -362,7 +342,7 @@ export const R3FPointsFX = React.forwardRef<
       const { gl } = state
       gl.setRenderTarget(renderTarget)
       gl.clear()
-      gl.render(scene, camera)
+      gl.render(fboScene.current, fboCamera.current)
       gl.setRenderTarget(null)
 
       if (pointsRef.current?.material instanceof THREE.ShaderMaterial) {
@@ -381,16 +361,10 @@ export const R3FPointsFX = React.forwardRef<
           | number
           | null
 
-        if (
-          pointsRef.current.material.uniforms.uModel1.value !== model1 &&
-          pointsRef.current.material.uniforms.uModel1.value !== null
-        ) {
+        if (pointsRef.current.material.uniforms.uModel1.value !== model1) {
           pointsRef.current.material.uniforms.uModel1.value = model1
         }
-        if (
-          pointsRef.current.material.uniforms.uModel2.value !== model2 &&
-          pointsRef.current.material.uniforms.uModel2.value !== null
-        ) {
+        if (pointsRef.current.material.uniforms.uModel2.value !== model2) {
           pointsRef.current.material.uniforms.uModel2.value = model2
         }
       }
@@ -403,25 +377,12 @@ export const R3FPointsFX = React.forwardRef<
             <bufferGeometry>
               <bufferAttribute
                 attach='attributes-position'
-                count={positions.length / 3}
-                array={positions}
-                itemSize={3}
+                args={[fboGeometryProperties.positions, 3]}
               />
               <bufferAttribute
                 attach='attributes-uv'
-                count={uvs.length / 2}
-                array={uvs}
-                itemSize={2}
+                args={[fboGeometryProperties.uvs, 2]}
               />
-              {attributes.map((attribute, index) => (
-                <bufferAttribute
-                  key={index}
-                  attach={attribute.attach}
-                  count={attribute.array.length / attribute.itemSize}
-                  array={attribute.array}
-                  itemSize={attribute.itemSize}
-                />
-              ))}
             </bufferGeometry>
             <shaderMaterial
               uniforms={fboShaderUniforms}
@@ -429,23 +390,19 @@ export const R3FPointsFX = React.forwardRef<
               fragmentShader={FBOfrag(progressModifier)}
             />
           </mesh>,
-          scene,
+          fboScene.current,
         )}
         <points {...rest} ref={pointsRef}>
           <bufferGeometry>
             <bufferAttribute
               attach='attributes-position'
-              count={particlesPosition.length / 3}
-              array={particlesPosition}
-              itemSize={3}
+              args={[particlesPosition, 3]}
             />
             {attributes.map((attribute, index) => (
               <bufferAttribute
                 key={index}
                 attach={attribute.attach}
-                count={attribute.array.length / attribute.itemSize}
-                array={attribute.array}
-                itemSize={attribute.itemSize}
+                args={[attribute.array, attribute.itemSize]}
               />
             ))}
           </bufferGeometry>
