@@ -22,7 +22,7 @@ const COLORS = {
   base: new THREE.Color('#9333ea'),
 }
 
-const Model = () => {
+const Particles = () => {
   const { nodes } = useGLTF('${import.meta.env.VITE_FRONTEND_URL}/suzanne.glb') as unknown as SuzanneGLTFResult
   const { nodes: threejsNodes } = useGLTF('${import.meta.env.VITE_FRONTEND_URL}/threejs.glb') as unknown as ThreejsGLTFResult
   const fxRef = React.useRef<R3FPointsFXRefType>(null)
@@ -30,7 +30,9 @@ const Model = () => {
   const modelA = React.useRef(0)
   const modelB = React.useRef(1)
 
-  const meshes = [nodes.Suzanne, threejsNodes.threejs, SPHERE]
+  const meshes = React.useMemo(() => {
+    return [nodes.Suzanne, threejsNodes.threejs, SPHERE];
+  }, [nodes, threejsNodes]);
 
   // Ensure the update progress is called exactly once per frame
   // or transition will glitch.
@@ -80,7 +82,7 @@ const Model = () => {
 const Scene = () => {
   return (
     <Canvas camera={{ position: [0, 0, 5] }}>
-      <Model />
+      <Particles />
       <OrbitControls />
     </Canvas>
   );

@@ -7,6 +7,8 @@ import { useGPUTier } from '@/hooks/useGPUTier'
 
 import BasicFiles from './basic'
 import ColorMixFiles from './colorMix'
+import PropControlFiles from './propControl'
+import VertexModifierFiles from './vertexModifier'
 
 const commonCSS = `
   html {
@@ -22,6 +24,8 @@ const commonCSS = `
 const SCENES = {
   scene1: BasicFiles,
   scene2: ColorMixFiles,
+  scene3: PropControlFiles,
+  scene4: VertexModifierFiles,
 }
 
 const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({
@@ -45,7 +49,7 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({
             three: '^0.171.0',
             '@react-three/drei': '^9.120.4',
             '@react-three/fiber': '^8.17.10',
-            'r3f-points-fx': '1.0.5-beta.2',
+            'r3f-points-fx': '1.0.5-beta.3',
           }}
           files={{
             ...SCENES[scene],

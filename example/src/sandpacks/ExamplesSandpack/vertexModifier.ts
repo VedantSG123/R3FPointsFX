@@ -130,6 +130,24 @@ export function createStarTextureAsThreeTexture(): THREE.Texture {
 }
 `
 
+const vertexModifierCode = `export const vertexModifier = \`
+attribute vec3 aPositionOffset;
+
+VertexProperties modifier(vec3 pos, float progress){
+    pos.x += sin(aPositionOffset.x * uTime) * 0.015;
+    pos.y += cos(aPositionOffset.y * uTime) * 0.015;
+    pos.z += sin(aPositionOffset.z * uTime) * 0.015;
+
+    VertexProperties result;
+    result.position = pos;
+    result.pointSize = uPointSize;
+    result.progress = progress;
+
+    return result; 
+}
+\`;
+`
+
 const fragmentModifierCode = `export const fragmentModifier = \`
 // the uniforms which I have passed as props I can declare and use
 uniform vec3 uColor1;
@@ -198,6 +216,79 @@ vec4 modifier(int index){
 }
 \`;
 `
+const generateRandomnessArrayCode = `export const generateRandomnessArray = (size: number, max: number = 1) => {
+  const length = size * 3;
+  const data = new Float32Array(length);
+
+  for (let i = 0; i < length; i++) {
+    const stride = i * 3;
+
+    data[stride] = Math.random() * max;
+    data[stride + 1] = Math.random() * max;
+    data[stride + 2] = Math.random() * max;
+  }
+  return data;
+};
+`
+
+const ButtonControllerCode = `import * as React from "react";
+
+const ButtonController: React.FC<ButtonControllerProps> = ({
+  length,
+  currentMesh,
+  targetMesh,
+  onTargetChange,
+}) => {
+  if (length === 0) return null;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        gap: "10px",
+        zIndex: 1000,
+        padding: "10px",
+        background: "rgba(0, 0, 0, 0.5)",
+        borderRadius: "8px",
+      }}
+    >
+      {Array.from({ length }, (_, index) => (
+        <button
+          key={index}
+          onClick={() => onTargetChange(index)}
+          style={{
+            padding: "8px 16px",
+            backgroundColor:
+              index === currentMesh && currentMesh === targetMesh
+                ? "#5b21b6"
+                : index === currentMesh || index === targetMesh
+                ? "#334155"
+                : "#020617",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+          }}
+        >
+          Mesh {index + 1}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+type ButtonControllerProps = {
+  length: number;
+  currentMesh: number | null;
+  targetMesh: number | null;
+  onTargetChange: (index: number) => void;
+};
+
+export default ButtonController;
+`
 
 const AppCode = `import * as THREE from "three";
 import * as React from "react";
@@ -208,11 +299,13 @@ import { useGLTF } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
 import type { R3FPointsFXRefType } from "r3f-points-fx";
 import { fragmentModifier } from "./fragmentModifier";
+import { vertexModifier } from "./vertexModifier";
 import { createStarTextureAsThreeTexture } from "./starTexture";
+import ButtonController from "./ButtonController";
+import { generateRandomnessArray } from "./generateRandomnessArray";
 import "./scene.css";
 
 const TRANSITION_DURATION = 2;
-const WAIT_DURATION = 2;
 
 const SPHERE = new THREE.Mesh(
   new THREE.SphereGeometry(1.1, 32, 16),
@@ -228,45 +321,58 @@ const COLORS = {
 
 const STAR_TEXTURE = createStarTextureAsThreeTexture();
 
-const Particles = () => {
+const POINTS_COUNT = 15000;
+
+const Particles: React.FC<SceneContentProps> = ({
+  target,
+  onTransitionComplete,
+}) => {
   const { nodes } = useGLTF("${import.meta.env.VITE_FRONTEND_URL}/suzanne.glb") as unknown as SuzanneGLTFResult;
   const { nodes: threejsNodes } = useGLTF(
     "${import.meta.env.VITE_FRONTEND_URL}/threejs.glb"
   ) as unknown as ThreejsGLTFResult;
   const fxRef = React.useRef<R3FPointsFXRefType>(null);
-  const start = React.useRef(0);
-  const modelA = React.useRef(0);
-  const modelB = React.useRef(1);
 
-  const meshes = React.useMemo(() => {
+  const progressRef = React.useRef(0);
+  const startTimeRef = React.useRef(0);
+  const currentRef = React.useRef<number | null>(null);
+  const targetRef = React.useRef<number | null>(null);
+
+  const models = React.useMemo(() => {
     return [nodes.Suzanne, threejsNodes.threejs, SPHERE];
   }, [nodes, threejsNodes]);
 
-  // Ensure the update progress is called exactly once per frame
-  // or transition will glitch.
+  const randomPositionOffset = React.useMemo(() => {
+    return generateRandomnessArray(POINTS_COUNT, 2);
+  }, []);
+
+  React.useEffect(() => {
+    if (target === null) return;
+    startTimeRef.current = 0;
+    targetRef.current = target;
+    fxRef.current?.updateProgress(0);
+    fxRef.current?.setModelB(target);
+  }, [target]);
+
   useFrame(({ clock }) => {
-    if (start.current === 0) {
-      start.current = clock.elapsedTime;
+    if (startTimeRef.current === 0) {
+      startTimeRef.current = clock.elapsedTime;
     }
 
-    const elapsed = clock.elapsedTime - start.current;
+    const elapsed = clock.elapsedTime - startTimeRef.current;
+    progressRef.current = Math.min(elapsed / TRANSITION_DURATION, 1);
 
-    const progress = Math.min(
-      Math.max(0, (elapsed - WAIT_DURATION) / TRANSITION_DURATION),
-      1
-    );
-
-    if (progress >= 1) {
-      modelA.current = modelB.current;
-      modelB.current = (modelB.current + 1) % meshes.length;
-
-      fxRef.current?.setModelA(modelA.current);
-      fxRef.current?.updateProgress(0);
-      fxRef.current?.setModelB(modelB.current);
-      start.current = 0;
-    } else {
-      fxRef.current?.updateProgress(progress);
+    if (progressRef.current >= 1 && targetRef.current !== null) {
+      if (currentRef.current !== targetRef.current) {
+        currentRef.current = targetRef.current;
+        fxRef.current?.setModelA(currentRef.current);
+        onTransitionComplete(currentRef.current);
+      }
     }
+
+    fxRef.current?.updateProgress(progressRef.current);
+    // since we are using uTime in vertex modifier, we need to update it
+    fxRef.current?.updateTime(clock.elapsedTime);
   });
 
   return (
@@ -274,12 +380,12 @@ const Particles = () => {
       ref={fxRef}
       scale={[2.5, 2.5, 2.5]}
       position={[0, 0, 0]}
-      modelA={modelA.current} // set value initally, later control using ref
-      modelB={modelB.current}
-      pointsCount={15000}
+      pointsCount={POINTS_COUNT}
       pointSize={0.2}
       organizedParticleIndexes={[0]} // particles will arrange at exact vertex positions for suzanne mesh
-      models={meshes}
+      models={models}
+      modelA={0}
+      modelB={0}
       baseColor={COLORS.base}
       sizeAttenutation={true}
       alpha={0.5}
@@ -290,16 +396,49 @@ const Particles = () => {
         uStarTexture: STAR_TEXTURE,
       }}
       fragmentModifier={fragmentModifier}
+      vertexModifier={vertexModifier}
+      attributes={[
+        {
+          array: randomPositionOffset,
+          itemSize: 3,
+          attach: "attributes-aPositionOffset",
+        },
+      ]}
     />
   );
 };
 
-const Scene = () => {
+const SceneContent: React.FC<SceneContentProps> = ({
+  target,
+  onTransitionComplete,
+}) => {
   return (
-    <Canvas camera={{ position: [0, 0, 5] }}>
-      <Particles />
+    <>
+      <Particles target={target} onTransitionComplete={onTransitionComplete} />
       <OrbitControls />
-    </Canvas>
+    </>
+  );
+};
+
+const Scene = () => {
+  const [currentMesh, setCurrentMesh] = React.useState<number | null>(0);
+  const [targetMesh, setTargetMesh] = React.useState<number | null>(0);
+
+  return (
+    <>
+      <Canvas camera={{ position: [0, 0, 5] }}>
+        <SceneContent
+          target={targetMesh}
+          onTransitionComplete={(index) => setCurrentMesh(index)}
+        />
+      </Canvas>
+      <ButtonController
+        length={3}
+        currentMesh={currentMesh}
+        targetMesh={targetMesh}
+        onTargetChange={setTargetMesh}
+      />
+    </>
   );
 };
 
@@ -317,13 +456,25 @@ type ThreejsGLTFResult = GLTF & {
   materials: object;
 };
 
+type SceneContentProps = {
+  target: number | null;
+  onTransitionComplete: (index: number | null) => void;
+};
+
 export default Scene;
+
 `
 
-const colorMixFiles: Record<string, SandpackFile> = {
+const vertexModifierFiles: Record<string, SandpackFile> = {
   '/App.tsx': { code: AppCode, active: true },
+  '/vertexModifier.ts': { code: vertexModifierCode, active: true },
   '/fragmentModifier.ts': { code: fragmentModifierCode, active: true },
+  '/generateRandomnessArray.ts': {
+    code: generateRandomnessArrayCode,
+    active: true,
+  },
+  '/ButtonController.tsx': { code: ButtonControllerCode, active: true },
   '/starTexture.ts': { code: starTextureCode, active: true },
 }
 
-export default colorMixFiles
+export default vertexModifierFiles
