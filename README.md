@@ -2,6 +2,8 @@
 
 [![npm](https://img.shields.io/npm/v/r3f-points-fx)](https://www.npmjs.com/package/r3f-points-fx) [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+[demo.webm](https://github.com/user-attachments/assets/25c0c30b-cc74-40ae-a16f-4b4c226e3be3)
+
 
 ## Documentation and Showcase
 
