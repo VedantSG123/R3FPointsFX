@@ -9,7 +9,7 @@
 
 [Points FX](https://pointsfx.vercel.app/)
 
-[Or Refer documentation on gihub](https://github.com/VedantSG123/R3FPointsFX/blob/main/example/src/mdx/docs.mdx)
+[Or Refer documentation on github](https://github.com/VedantSG123/R3FPointsFX/blob/main/example/src/mdx/docs.mdx)
 
 ## Deep Wiki
 
