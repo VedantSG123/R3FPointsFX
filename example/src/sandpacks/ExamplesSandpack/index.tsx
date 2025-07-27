@@ -7,7 +7,10 @@ import { useGPUTier } from '@/hooks/useGPUTier'
 
 import BasicFiles from './basic'
 import ColorMixFiles from './colorMix'
+import NoisyProgressFiles from './noisyProgress'
+import ProgressModifierFiles from './progressModifier'
 import PropControlFiles from './propControl'
+import ScrollMorphFiles from './scrollMorph'
 import VertexModifierFiles from './vertexModifier'
 
 const commonCSS = `
@@ -26,6 +29,9 @@ const SCENES = {
   scene2: ColorMixFiles,
   scene3: PropControlFiles,
   scene4: VertexModifierFiles,
+  scene5: ProgressModifierFiles,
+  scene6: NoisyProgressFiles,
+  scene7: ScrollMorphFiles,
 }
 
 const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({
@@ -50,6 +56,7 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({
             '@react-three/drei': '^9.120.4',
             '@react-three/fiber': '^8.17.10',
             'r3f-points-fx': '1.0.5-beta.3',
+            gsap: '^3.13.0',
           }}
           files={{
             ...SCENES[scene],
