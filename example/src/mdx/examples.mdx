@@ -1,0 +1,36 @@
+# Interactive Examples 
+
+## Basic Example
+This example demonstrates the basic usage of the R3FPointsFX library without any modifier functions.
+<ExamplesSandpack scene='scene1' height={656} />
+<VerticalSpacer height={100} />
+   
+## Color Mixing Example
+This example demonstrates the usage of fragment modifier function, also covers how to pass your custom uniforms to the shader.
+<ExamplesSandpack scene='scene2' height={656} />
+<VerticalSpacer height={100} />
+
+## Prop Control Example
+This example demonstrates how to control transition using a reactive prop for changing the models.
+<ExamplesSandpack scene='scene3' height={656} />
+<VerticalSpacer height={100} />
+
+## Vertex Modifier Example
+Using the vertex modifier function to modify the positions of the points, also notice the usage of a user defined attribute `aPositionOffset` to add randomness to the points' positions.
+<ExamplesSandpack scene='scene4' height={656} />
+<VerticalSpacer height={100} />
+
+## Progress Modifier Example
+This example demonstrates basic the usage of the `progressModifier` function to control the transition between different models. Here we have a simple cubic bezier curve applied to the progress value.
+<ExamplesSandpack scene='scene5' height={656} />
+<VerticalSpacer height={100} />
+
+## Noisy Progress Example
+Usage of the `progressModifier` function to create a noisy transition effect achieved by using a simplex noise function. This gives a more organic feel to the transition between different models.
+<ExamplesSandpack scene='scene6' height={656} />
+<VerticalSpacer height={100} />
+
+## Scroll Morph Example
+This example demonstrates the particle morph transition on scrolling the page content. This particular example uses [**GSAP**](https://gsap.com/) for scroll-based animations and transitions.
+<ExamplesSandpack scene='scene7' height={656} />
+<VerticalSpacer height={100} />
