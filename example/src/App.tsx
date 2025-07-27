@@ -18,7 +18,9 @@ function App() {
       smooth: 2,
       effects: true,
       smoothTouch: 0.1,
-      normalizeScroll: true,
+      normalizeScroll: {
+        allowNestedScroll: true,
+      },
       ignoreMobileResize: true,
     })
 
