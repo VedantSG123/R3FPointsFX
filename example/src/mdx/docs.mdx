@@ -359,7 +359,7 @@ If you want to have a deeper understanding of how these modifier functions work 
 - [FBOfrag.ts](https://github.com/VedantSG123/R3FPointsFX/blob/main/lib/R3FPointsFX/shaders/FBOfrag.ts)
 - [FBOvert.ts](https://github.com/VedantSG123/R3FPointsFX/blob/main/lib/R3FPointsFX/shaders/FBOvert.ts)
 
-![Shader code with modifier function](../../public/shader-code.png)
+![Shader code with modifier function](shader-code.png)
 
 # Performance and Best Practices
 - Follow the performance guidelines of [React Three Fiber](https://r3f.docs.pmnd.rs/advanced/pitfalls) to ensure smooth rendering.
@@ -368,10 +368,10 @@ If you want to have a deeper understanding of how these modifier functions work 
 - The output will be best if the mesh is not very complex, as the particles are sampled from the mesh surface or mesh vertices. Ensure a uniform mesh topology for best results. Use software like [Blender](https://www.blender.org/) or [MeshLab](https://www.meshlab.net/) to simplify, decimate, clean the mesh if needed.
 
 Example of a bad mesh (has protruding vertices into the mesh body, not uniform):
-![Bad mesh example](../../public/bad-mesh.png)
+![Bad mesh example](bad-mesh.png)
 
 Example of a good mesh (uniform, no protruding vertices):
-![Good mesh example](../../public/good-mesh.png)
+![Good mesh example](good-mesh.png)
 
 # References and Inspiration
 [Maxime Heckel's blog on particles in react three fiber](https://blog.maximeheckel.com/posts/the-magical-world-of-particles-with-react-three-fiber-and-shaders/)
