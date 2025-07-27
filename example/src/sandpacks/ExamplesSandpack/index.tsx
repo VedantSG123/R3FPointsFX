@@ -55,7 +55,7 @@ const ExamplesSandpack: React.FC<ExamplesSandpackProps> = ({
             three: '^0.171.0',
             '@react-three/drei': '^9.120.4',
             '@react-three/fiber': '^8.17.10',
-            'r3f-points-fx': '1.0.5-beta.3',
+            'r3f-points-fx': '2.0.0',
             gsap: '^3.13.0',
           }}
           files={{
