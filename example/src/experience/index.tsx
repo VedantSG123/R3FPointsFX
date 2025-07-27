@@ -11,6 +11,10 @@ export const Experience = () => {
   const location = useLocation()
   const isHomePage = location.pathname === '/'
 
+  if (!isHomePage) {
+    return null
+  }
+
   return (
     <Canvas id='main-canvas'>
       <OrbitControls />

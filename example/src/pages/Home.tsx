@@ -3,6 +3,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger'
 import { ChevronRight } from 'lucide-react'
 import { Cpu, Gpu, Link, Zap } from 'lucide-react'
 import * as React from 'react'
+import { Link as RouterLink } from 'react-router'
 
 import { CodeBlock } from '@/components/custom/markdown/markdown-renderer'
 import { ScrollBottomAnimation } from '@/components/custom/ScrollButtonAnimation'
@@ -74,7 +75,7 @@ const Section1 = () => {
     >
       <div>
         <div className='mb-10 md:text-center px-3 flex flex-col items-center gap-4'>
-          <h1 className='text-4xl md:text-5xl leading-tight max-w-[800px] font-bold inline-block'>
+          <h1 className='text-4xl md:text-5xl leading-relaxed max-w-[800px] font-bold inline-block'>
             Particle Magic Unleashed with <GradientText>PointsFX</GradientText>
           </h1>
           <div className='w-full sm:max-w-[280px] my-4'>
@@ -119,9 +120,11 @@ const Section2 = () => {
             to update progress and switch between shapes.
           </p>
           <div className='flex justify-center gap-2'>
-            <Button className='mt-4 mb-2'>
-              Get Started <ChevronRight />
-            </Button>
+            <RouterLink to='/docs#getting-started'>
+              <Button className='mt-4 mb-2'>
+                Get Started <ChevronRight />
+              </Button>
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -251,12 +254,15 @@ const Section4 = () => {
               transition dynamics, you have the ultimate control. During
               morphing you can even morph between particle shape, color and
               movement behaviours using the{' '}
-              <a href='#' className='font-bold'>
+              <RouterLink
+                to='/docs#using-the-modifier-functions'
+                className='font-bold'
+              >
                 <GradientText className='underline'>
                   modifier functions{' '}
                   <Link className='inline-block w-3 h-3 relative bottom-1 text-purple-600' />
                 </GradientText>
-              </a>
+              </RouterLink>
               .
             </div>
           </div>
@@ -478,15 +484,19 @@ const Section6 = () => {
               mesmerizing visual experiences.
             </p>
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-              <Button
-                size='lg'
-                className='bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-              >
-                Get Started Now
-              </Button>
-              <Button size='lg' variant='outline'>
-                View Documentation
-              </Button>
+              <RouterLink to='/examples'>
+                <Button
+                  size='lg'
+                  className='bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
+                >
+                  Explore Examples
+                </Button>
+              </RouterLink>
+              <RouterLink to='/docs'>
+                <Button size='lg' variant='outline'>
+                  View Documentation
+                </Button>
+              </RouterLink>
             </div>
           </div>
         </div>
