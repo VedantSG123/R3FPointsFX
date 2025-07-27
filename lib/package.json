@@ -1,7 +1,7 @@
 {
   "name": "r3f-points-fx",
   "private": false,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "React three fiber component for easily creating high performance particles meshes. Makes particles morphing from one arrangement to another a piece of cake.",
   "keywords": [
     "react",

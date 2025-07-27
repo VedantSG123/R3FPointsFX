@@ -313,7 +313,7 @@ export default ButtonController;
 const AppCode = `import * as THREE from "three";
 import * as React from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { R3FPointsFX } from "r3f-points-fx";
+import { R3FPointsFX, nextPerfectSquare } from "r3f-points-fx";
 import { OrbitControls } from "@react-three/drei";
 import { useGLTF } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
@@ -364,7 +364,8 @@ const Particles: React.FC<SceneContentProps> = ({
   }, [nodes, threejsNodes]);
 
   const randomPositionOffset = React.useMemo(() => {
-    return generateRandomnessArray(POINTS_COUNT, 2);
+    // Very important to use nextPerfectSquare here to match exact number of points
+    return generateRandomnessArray(nextPerfectSquare(POINTS_COUNT), 2);
   }, []);
 
   React.useEffect(() => {

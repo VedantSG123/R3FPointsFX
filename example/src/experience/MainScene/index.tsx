@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { gsap } from 'gsap'
 import type { R3FPointsFXRefType } from 'r3f-points-fx'
 import { R3FPointsFX } from 'r3f-points-fx'
+import { nextPerfectSquare } from 'r3f-points-fx'
 import * as React from 'react'
 import * as THREE from 'three'
 import type { GLTF } from 'three-stdlib'
@@ -152,7 +153,7 @@ export const MainScene = () => {
   const cursor3D = React.useRef(new THREE.Vector3())
 
   const colors = React.useMemo(() => {
-    const colors = new Float32Array(POINTS_COUNT * 3)
+    const colors = new Float32Array(nextPerfectSquare(POINTS_COUNT) * 3)
     for (let i = 0; i < POINTS_COUNT; i++) {
       const mixFactor = Math.random()
       const color = new THREE.Color().lerpColors(
@@ -170,7 +171,7 @@ export const MainScene = () => {
   }, [])
 
   const randomPositionOffset = React.useMemo(() => {
-    return generateRandomnessArray(POINTS_COUNT, 2)
+    return generateRandomnessArray(nextPerfectSquare(POINTS_COUNT), 2)
   }, [])
 
   useFrame(({ clock }) => {
