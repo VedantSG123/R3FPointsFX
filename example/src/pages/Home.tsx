@@ -110,7 +110,7 @@ const Section2 = () => {
             </h1>
           </div>
         </div>
-        <div className='bg-background/10 backdrop-blur max-w-5xl w-full mx-auto p-4 rounded-lg absolute left-1/2 -translate-x-1/2 bottom-10 md:bottom-20 text-xl'>
+        <div className='bg-background/10 backdrop-blur max-w-5xl w-full mx-auto p-4 rounded-lg md:absolute md:left-1/2 md:-translate-x-1/2 bottom-10 md:bottom-20 text-xl'>
           <strong>Built for React Three Fiber</strong>
           <p>
             Integrate seamlessly into any R3F project. Just pass an array of
