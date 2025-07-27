@@ -7,6 +7,7 @@ import { Link as RouterLink } from 'react-router'
 
 import { CodeBlock } from '@/components/custom/markdown/markdown-renderer'
 import { ScrollBottomAnimation } from '@/components/custom/ScrollButtonAnimation'
+import { SEO, seoConfigs } from '@/components/SEO'
 import {
   Accordion,
   AccordionContent,
@@ -26,6 +27,7 @@ gsap.registerPlugin(ScrollTrigger)
 export const Home = () => {
   return (
     <div className='w-full'>
+      <SEO {...seoConfigs.home} />
       <Section1 />
       <Section2 />
       <Section3 />

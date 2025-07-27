@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://pointsfx.vercel.app/sitemap.xml
+
+# Disallow crawling of development files
+Disallow: /src/
+Disallow: /*.map$
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /dist/
+
+# Allow crawling of important assets
+Allow: /public/
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.svg$
+Allow: /*.webp$
+Allow: /*.glb$
+
+# Crawl delay (optional - be nice to servers)
+Crawl-delay: 1

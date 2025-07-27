@@ -1,7 +1,6 @@
 import GSAP from 'gsap'
 import ScrollSmoother from 'gsap/ScrollSmoother'
 import ScrollTrigger from 'gsap/ScrollTrigger'
-import { Leva } from 'leva'
 import * as React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router'
 
@@ -42,7 +41,6 @@ function App() {
         <div className='w-full h-full fixed top-0 left-0 -z-10 bg-black'>
           <Experience />
         </div>
-        <Leva />
       </BrowserRouter>
     </>
   )
